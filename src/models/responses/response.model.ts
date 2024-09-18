@@ -14,7 +14,8 @@ export class ResponseModel {
 		message: string;
 		extensions?: unknown;
 	} | null = null;
-	data: unknown = null;
+	/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+	data: any = null;
 
 	constructor(response: HttpResponse) {
 		this.response = response;

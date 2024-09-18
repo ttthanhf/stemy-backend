@@ -2,7 +2,7 @@ import { createSigner, createDecoder, createVerifier } from 'fast-jwt';
 import { env } from '~configs/env.config';
 import { JWT_CONFIG } from '~configs/jwt.config';
 
-export class JWT {
+export class JWTUtil {
 	static sign(payload: object, expiresIn: number | string = env.JWT_EXPIRE) {
 		const signSync = createSigner({
 			...JWT_CONFIG,

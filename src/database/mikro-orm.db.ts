@@ -17,8 +17,8 @@ class MikroOrmDB {
 			await this.orm.getSchemaGenerator().updateSchema();
 			logger.info('Connected to MariaDB');
 		} catch (err) {
-			logger.fatal(err);
-			throw new Error(err);
+			logger.fatal(err.stack);
+			throw new Error(err.stack);
 		}
 	}
 }
