@@ -1,8 +1,6 @@
 import { GraphQLError, GraphQLResolveInfo } from 'graphql';
-import {
-	PageInfo,
-	ProductsPaginatedResponse
-} from 'models/responses/pagination.response';
+import { PageInfo } from 'models/responses/pagination/base.response';
+import { ProductsWithPaginationResponse } from 'models/responses/pagination/product.response';
 import { Arg, Args, Info, Mutation, Query, Resolver } from 'type-graphql';
 import { Product } from '~entities/product.entity';
 import {
@@ -17,7 +15,7 @@ import { ResolverUtil } from '~utils/resolver.util';
 
 @Resolver(Product)
 export class ProductResolver {
-	@Query(() => ProductsPaginatedResponse)
+	@Query(() => ProductsWithPaginationResponse)
 	async products(
 		@Info() info: GraphQLResolveInfo,
 		@Args() pageInfoArgs: PageInfoArgs,

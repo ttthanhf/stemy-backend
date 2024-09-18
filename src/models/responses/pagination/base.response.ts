@@ -1,5 +1,4 @@
 import { ClassType, Field, Int, ObjectType } from 'type-graphql';
-import { Product } from '~entities/product.entity';
 import { PageInfoArgs } from '~types/args/pagination.arg';
 import { MapperUtil } from '~utils/mapper.util';
 
@@ -26,7 +25,7 @@ export class PageInfo {
 	}
 }
 
-function BasePaginationResponse<TItem extends object>(
+export function BasePaginationResponse<TItem extends object>(
 	TItemClass: ClassType<TItem>
 ) {
 	@ObjectType(`Paginated${TItemClass.name}Response`)
@@ -40,8 +39,3 @@ function BasePaginationResponse<TItem extends object>(
 
 	return BasePaginationResponseClass;
 }
-
-@ObjectType()
-export class ProductsPaginatedResponse extends BasePaginationResponse(
-	Product
-) {}
