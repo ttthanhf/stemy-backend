@@ -18,12 +18,18 @@ export abstract class BaseRepository<Entity extends object> {
 		this.entity = entity;
 	}
 
-	create(entity: Entity): Entity {
+	async create(entity: Entity): Promise<Entity> {
 		return mikroOrmDb.em.fork().create(this.entity, entity);
 	}
 
 	async save(entity: Entity): Promise<void> {
 		return mikroOrmDb.em.fork().persistAndFlush(entity);
+	}
+
+	async createAndSave(entity: Entity): Promise<Entity> {
+		const newEntity = await this.create(entity);
+		await this.save(newEntity);
+		return newEntity;
 	}
 
 	async findOne<

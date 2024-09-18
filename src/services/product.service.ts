@@ -1,4 +1,8 @@
-import productRepository from '~repositories/product.repository';
+import { Product } from '~entities/product.entity';
+import {
+	productCategoryRepository,
+	productRepository
+} from '~repositories/product.repository';
 import { PageInfoArgs, SortOrderArgs } from '~types/args/pagination.arg';
 import { PaginationUtil } from '~utils/pagination.util';
 
@@ -10,8 +14,7 @@ export class ProductService {
 		sortOrderArgs: SortOrderArgs
 	) {
 		const pageResult = PaginationUtil.avoidTrashInput(pageInfoArgs);
-
-		return await productRepository.findAndCount(
+		return productRepository.findAndCount(
 			{},
 			{
 				fields: fields,
@@ -21,5 +24,15 @@ export class ProductService {
 				}
 			}
 		);
+	}
+
+	static async createProduct(product: Product) {
+		return productRepository.createAndSave(product);
+	}
+}
+
+export class ProductCategoryService {
+	static async getProductCategoryById(id: number) {
+		return productCategoryRepository.findOne({ id });
 	}
 }

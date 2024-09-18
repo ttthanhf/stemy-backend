@@ -1,4 +1,4 @@
-import { Product } from '~entities/product.entity';
+import { Product, ProductCategory } from '~entities/product.entity';
 import { BaseRepository } from './base.repository';
 
 class ProductRepository extends BaseRepository<Product> {
@@ -6,5 +6,11 @@ class ProductRepository extends BaseRepository<Product> {
 		super(Product);
 	}
 }
+export const productRepository = new ProductRepository();
 
-export default new ProductRepository();
+class ProductCategoryRepository extends BaseRepository<ProductCategory> {
+	constructor() {
+		super(ProductCategory);
+	}
+}
+export const productCategoryRepository = new ProductCategoryRepository();

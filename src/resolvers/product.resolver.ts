@@ -1,15 +1,21 @@
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 import {
 	PageInfo,
 	ProductsPaginatedResponse
 } from 'models/responses/pagination.response';
-import { Args, Info, Query, Resolver } from 'type-graphql';
-import { ProductService } from '~services/product.service';
+import { Arg, Args, Info, Mutation, Query, Resolver } from 'type-graphql';
+import { Product } from '~entities/product.entity';
+import {
+	ProductCategoryService,
+	ProductService
+} from '~services/product.service';
 import { PageInfoArgs, SortOrderArgs } from '~types/args/pagination.arg';
+import { ProductInput } from '~types/inputs/product.input';
+import { MapperUtil } from '~utils/mapper.util';
 
 import { ResolverUtil } from '~utils/resolver.util';
 
-@Resolver()
+@Resolver(Product)
 export class ProductResolver {
 	@Query(() => ProductsPaginatedResponse)
 	async products(
@@ -34,5 +40,21 @@ export class ProductResolver {
 			items: products,
 			pageInfo: pageInfo
 		};
+	}
+
+	@Mutation(() => Product)
+	async createProduct(@Arg('input') input: ProductInput) {
+		const productCategory = await ProductCategoryService.getProductCategoryById(
+			input.categoryId
+		);
+
+		if (!productCategory) {
+			throw new GraphQLError('Category not found');
+		}
+
+		const newProduct = MapperUtil.mapObjectToClass(input, Product);
+		newProduct.category = productCategory;
+
+		return await ProductService.createProduct(newProduct);
 	}
 }

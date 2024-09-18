@@ -6,9 +6,7 @@ import { JWT } from '~utils/jwt.util';
 
 export class UserService {
 	static async createNewUser(user: User): Promise<User> {
-		const newUser = userRepository.create(user);
-		await userRepository.save(newUser);
-		return newUser;
+		return userRepository.createAndSave(user);
 	}
 
 	static generateUserAccessToken(user: User) {
@@ -22,7 +20,7 @@ export class UserService {
 	}
 
 	static async getUserByEmail(email: string) {
-		return await userRepository.findOne({
+		return userRepository.findOne({
 			email
 		});
 	}

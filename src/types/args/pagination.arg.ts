@@ -12,7 +12,7 @@ export class PageInfoArgs {
 
 @ArgsType()
 export class SortOrderArgs {
-	@Field({ defaultValue: 'createdAt' })
+	@Field({ defaultValue: 'id' })
 	sort!: string;
 
 	@Field(() => SortOrder, { defaultValue: SortOrder.ASC })
