@@ -12,6 +12,11 @@
 	"main": "./dist/main.js",
 	"type": "commonjs",
 	"dependencies": {
+		"@escape.tech/graphql-armor-cost-limit": "^2.2.0",
+		"@escape.tech/graphql-armor-max-aliases": "^2.5.0",
+		"@escape.tech/graphql-armor-max-depth": "^2.3.0",
+		"@escape.tech/graphql-armor-max-directives": "^2.2.0",
+		"@escape.tech/graphql-armor-max-tokens": "^2.4.0",
 		"@lukeed/ms": "^2.0.2",
 		"@mikro-orm/core": "^6.2.9",
 		"@mikro-orm/mariadb": "^6.2.9",
