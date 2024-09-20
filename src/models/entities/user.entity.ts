@@ -1,9 +1,11 @@
 import {
 	AfterCreate,
+	AfterUpdate,
 	BeforeCreate,
 	Collection,
 	Entity,
 	Enum,
+	EventArgs,
 	ManyToOne,
 	OneToMany,
 	Property
@@ -64,6 +66,13 @@ export class User extends BaseEntity {
 	@AfterCreate()
 	async log() {
 		logger.info('Create new user');
+	}
+
+	@AfterUpdate()
+	async encryptPasswordUpdate(args: EventArgs<this>) {
+		if (args.changeSet?.payload.password) {
+			this.password = await CryptoUtil.encryptPassword(this.password);
+		}
 	}
 }
 

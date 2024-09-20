@@ -9,7 +9,7 @@ class RedisDB {
 			this.redis = new Redis(redisConfig);
 
 			this.redis.on('error', (err) => {
-				logger.fatal(err);
+				logger.fatal('Redis: ' + err);
 				throw new Error(String(err));
 			});
 
@@ -20,15 +20,15 @@ class RedisDB {
 	}
 
 	async set(key: RedisKey, value: string | number) {
-		return await this.redis.set(key, value);
+		return this.redis.set(key, value);
 	}
 
 	async get(key: RedisKey) {
-		return await this.redis.get(key);
+		return this.redis.get(key);
 	}
 
 	async remove(key: RedisKey) {
-		return await this.redis.del(key);
+		return this.redis.del(key);
 	}
 
 	test() {}

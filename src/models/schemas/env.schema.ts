@@ -13,6 +13,7 @@ export const envTypeSchema = Type.Object({
 
 	MAIL_USER: Type.String(),
 	MAIL_PASSWORD: Type.String(),
+	MAIL_REDIRECT: Type.String(),
 
 	DB_MARIABD_USER: Type.String(),
 	DB_MARIABD_PASSWORD: Type.String(),
