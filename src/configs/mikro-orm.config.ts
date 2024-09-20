@@ -6,11 +6,12 @@ import { User, UserLab } from '~entities/user.entity';
 import { Product, ProductCategory, ProductLab } from '~entities/product.entity';
 import { Order, OrderItem } from '~entities/order.entity';
 import { Feedback } from '~entities/feedback.entity';
+import { Cart } from '~entities/cart.entity';
 
 const orderEntities = [Order, OrderItem];
 const productEntities = [Product, ProductCategory, ProductLab];
 const userEntities = [User, UserLab];
-const otherEntities = [Feedback];
+const otherEntities = [Feedback, Cart];
 const entities = [
 	...userEntities,
 	...productEntities,

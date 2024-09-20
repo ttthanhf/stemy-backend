@@ -29,6 +29,10 @@ export class ProductService {
 	static async createProduct(product: Product) {
 		return productRepository.createAndSave(product);
 	}
+
+	static async getProductById(id: number) {
+		return productRepository.findOne({ id });
+	}
 }
 
 export class ProductCategoryService {
