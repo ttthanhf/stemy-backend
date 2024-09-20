@@ -11,6 +11,10 @@ export class UserService {
 		return userRepository.createAndSave(user);
 	}
 
+	static async updateUser(user: User): Promise<void> {
+		return userRepository.save(user);
+	}
+
 	static generateUserAccessToken(user: User) {
 		const access_token = JWTUtil.sign({
 			payload: {

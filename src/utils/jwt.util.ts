@@ -6,7 +6,8 @@ export class JWTUtil {
 	static sign(payload: object, expiresIn: number | string = env.JWT_EXPIRE) {
 		const signSync = createSigner({
 			...JWT_CONFIG,
-			expiresIn: expiresIn
+			expiresIn: expiresIn,
+			mutatePayload: false
 		});
 		return signSync(payload);
 	}
@@ -16,9 +17,15 @@ export class JWTUtil {
 	}
 
 	static verify(token: string | number) {
-		const verifySync = createVerifier(JWT_CONFIG);
+		const verifySync = createVerifier({ ...JWT_CONFIG, complete: true });
 		try {
-			return verifySync(String(token));
+			const info = verifySync(String(token));
+
+			if (info.header.alg != env.JWT_ALGORITHM) {
+				return null;
+			}
+
+			return info.payload;
 		} catch {
 			return null;
 		}
