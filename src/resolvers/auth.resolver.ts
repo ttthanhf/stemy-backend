@@ -9,10 +9,10 @@ import { UserService } from '~services/user.service';
 import { CryptoUtil } from '~utils/crypto.util';
 import logger from '~utils/logger.util';
 import mailUtil from '~utils/mail.util';
-import { env } from '~configs/env.config';
 import { JWTUtil } from '~utils/jwt.util';
 import { MapperUtil } from '~utils/mapper.util';
 import { RedisService } from '~services/redis.service';
+import { NumberUtil } from '~utils/number.util';
 
 @Resolver()
 export class AuthResolver {
@@ -76,22 +76,46 @@ export class AuthResolver {
 	}
 
 	@Mutation(() => String)
-	async forgotPassword(@Arg('email') email: string) {
+	async sendResetPasswordOTP(@Arg('email') email: string) {
 		const user = await UserService.getUserByEmail(email);
 		if (!user) {
 			throw new GraphQLError('User not found');
 		}
 
-		const token = JWTUtil.sign({ id: user.id, type: 'forgot-password' });
+		const OTPCode = NumberUtil.getRandomNumberByLength(4);
 
-		mailUtil.sendMailRecoveryPassword(
-			email,
-			env.MAIL_REDIRECT + '?token=' + token
-		);
+		mailUtil.sendMailRecoveryPassword(email, OTPCode);
 
-		await RedisService.setForgotPasswordToken(token);
+		await RedisService.setOTPCodeResetPassword(email, OTPCode);
 
 		return 'Success';
+	}
+
+	@Mutation(() => String)
+	async getTokenResetPassword(
+		@Arg('OTPCode') OTPCode: string,
+		@Arg('email') email: string
+	) {
+		const storedOTPCode = await RedisService.getOTPCodeResetPassword(email);
+
+		if (!storedOTPCode) {
+			throw new GraphQLError('OTP Code fail 1');
+		}
+
+		if (storedOTPCode != OTPCode) {
+			throw new GraphQLError('OTP Code fail 2');
+		}
+
+		await RedisService.removeOTPCodeResetPassword(email);
+
+		const token = JWTUtil.sign({
+			email,
+			type: 'reset-password'
+		});
+
+		await RedisService.setTokenResetPassword(token);
+
+		return token;
 	}
 
 	@Mutation(() => String)
@@ -99,33 +123,33 @@ export class AuthResolver {
 		@Arg('token') token: string,
 		@Arg('password') password: string
 	) {
-		const storedToken = await RedisService.getForgotPasswordToken(token);
+		const storedToken = await RedisService.getTokenResetPassword(token);
 
 		if (!storedToken) {
-			throw new GraphQLError('Token invalid');
+			throw new GraphQLError('Reset password fail 1');
 		}
 
-		const info = JWTUtil.verify(token);
+		const tokenInfo = JWTUtil.verify(token);
 
-		if (!info) {
-			throw new GraphQLError('Token invalid');
+		if (!tokenInfo) {
+			throw new GraphQLError('Reset password fail 2');
 		}
 
-		if (info.payload.type != 'forgot-password') {
-			throw new GraphQLError('Token invalid');
+		if (tokenInfo.type == 'reset-password') {
+			throw new GraphQLError('Reset password fail 3');
 		}
 
-		const user = await UserService.getUserById(info.payload.id);
+		const user = await UserService.getUserByEmail(tokenInfo.email);
 
 		if (!user) {
-			throw new GraphQLError('User not found. Token invalid');
+			throw new GraphQLError('Reset password fail 4');
 		}
 
 		user.password = password;
 
 		await UserService.updateUser(user);
 
-		await RedisService.removeForgotPasswordToken(token);
+		await RedisService.removeTokenResetPassword(token);
 
 		return 'Success';
 	}

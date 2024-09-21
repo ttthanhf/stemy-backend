@@ -14,7 +14,7 @@ class MailUtil {
 	sendMail(opts: Mail.Options) {
 		this.transporter.sendMail(opts);
 	}
-	sendMailRecoveryPassword(targetMail: string, redirectUrl: string) {
+	sendMailRecoveryPassword(targetMail: string, OPTCode: number) {
 		this.sendMail({
 			to: targetMail,
 			subject: 'Khôi phục mật khẩu',
@@ -37,23 +37,9 @@ class MailUtil {
 				<div style="line-height: 1.6">
 					<p>Chào ${targetMail.split('@')[0]},</p>
 					<p>
-					Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản của mình. Vui lòng nhấp vào nút bên dưới để đặt lại mật khẩu:
+					Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản của mình :
 					</p>
-					<a
-					href="${redirectUrl}"
-					style="
-						display: block;
-						width: 200px;
-						margin: 20px auto;
-						padding: 10px;
-						text-align: center;
-						background-color: #007bff;
-						color: white;
-						text-decoration: none;
-						border-radius: 5px;
-					"
-					>Đặt lại mật khẩu</a
-					>
+					OTP: ${OPTCode}
 					<p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>
 					<p>Trân trọng,<br />ThanhF</p>
 				</div>

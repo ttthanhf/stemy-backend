@@ -1,23 +1,42 @@
 import redisDb from 'database/redis.db';
 
 export class RedisService {
-	private static FORGOT_PASSWORD_HEAD = 'forgot-password-';
+	private static OTP_CODE_RESET_PASSWORD_HEAD = 'OPT_CODE_RESET_PASSWORD-';
+	private static TOKEN_RESET_PASSWORD_HEAD = 'TOKEN_CODE_RESET_PASSWORD-';
 
-	static async setForgotPasswordToken(token: string) {
+	static async setOTPCodeResetPassword(email: string, OTPCode: number) {
 		return redisDb.redis.set(
-			this.FORGOT_PASSWORD_HEAD + token,
-			'1',
+			this.OTP_CODE_RESET_PASSWORD_HEAD + email,
+			OTPCode,
 			'EX',
 			60 * 15,
 			'NX'
 		);
 	}
 
-	static async getForgotPasswordToken(token: string) {
-		return redisDb.redis.get(this.FORGOT_PASSWORD_HEAD + token);
+	static async getOTPCodeResetPassword(email: string) {
+		return redisDb.redis.get(this.OTP_CODE_RESET_PASSWORD_HEAD + email);
 	}
 
-	static async removeForgotPasswordToken(token: string) {
-		return redisDb.redis.del(this.FORGOT_PASSWORD_HEAD + token);
+	static async removeOTPCodeResetPassword(email: string) {
+		return redisDb.redis.del(this.OTP_CODE_RESET_PASSWORD_HEAD + email);
+	}
+
+	static async setTokenResetPassword(token: string) {
+		return redisDb.redis.set(
+			this.TOKEN_RESET_PASSWORD_HEAD + token,
+			'1',
+			'EX',
+			60 * 5,
+			'NX'
+		);
+	}
+
+	static async getTokenResetPassword(token: string) {
+		return redisDb.redis.get(this.TOKEN_RESET_PASSWORD_HEAD + token);
+	}
+
+	static async removeTokenResetPassword(token: string) {
+		return redisDb.redis.del(this.TOKEN_RESET_PASSWORD_HEAD + token);
 	}
 }
