@@ -3,13 +3,18 @@ import { defineConfig, MariaDbDriver } from '@mikro-orm/mariadb';
 import { env } from './env.config';
 import logger from '~utils/logger.util';
 import { User, UserLab } from '~entities/user.entity';
-import { Product, ProductCategory, ProductLab } from '~entities/product.entity';
+import {
+	Product,
+	ProductCategory,
+	ProductImage,
+	ProductLab
+} from '~entities/product.entity';
 import { Order, OrderItem } from '~entities/order.entity';
 import { Feedback } from '~entities/feedback.entity';
 import { Cart } from '~entities/cart.entity';
 
 const orderEntities = [Order, OrderItem];
-const productEntities = [Product, ProductCategory, ProductLab];
+const productEntities = [Product, ProductCategory, ProductLab, ProductImage];
 const userEntities = [User, UserLab];
 const otherEntities = [Feedback, Cart];
 const entities = [

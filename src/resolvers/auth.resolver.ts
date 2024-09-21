@@ -82,6 +82,8 @@ export class AuthResolver {
 			throw new GraphQLError('User not found');
 		}
 
+		await RedisService.removeOTPCodeResetPassword(email);
+
 		const OTPCode = NumberUtil.getRandomNumberByLength(4);
 
 		mailUtil.sendMailRecoveryPassword(email, OTPCode);
@@ -135,7 +137,7 @@ export class AuthResolver {
 			throw new GraphQLError('Reset password fail 2');
 		}
 
-		if (tokenInfo.type == 'reset-password') {
+		if (tokenInfo.type != 'reset-password') {
 			throw new GraphQLError('Reset password fail 3');
 		}
 

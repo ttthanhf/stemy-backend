@@ -33,6 +33,10 @@ export class Product extends BaseEntity {
 	@Field(() => [Feedback])
 	@OneToMany(() => Feedback, (feedback) => feedback.product)
 	feedbacks = new Collection<Feedback>(this);
+
+	@Field(() => [ProductImage])
+	@OneToMany(() => ProductImage, (productImage) => productImage.product)
+	images = new Collection<ProductImage>(this);
 }
 
 @ObjectType()
@@ -46,10 +50,21 @@ export class ProductCategory extends BaseEntity {
 @ObjectType()
 @Entity()
 export class ProductLab extends BaseEntity {
+	@OneToOne(() => Product)
+	product!: Product;
+
 	@Field()
 	@Property()
 	url!: string;
+}
 
-	@OneToOne(() => Product)
+@ObjectType()
+@Entity()
+export class ProductImage extends BaseEntity {
+	@ManyToOne(() => Product)
 	product!: Product;
+
+	@Field()
+	@Property()
+	url!: string;
 }

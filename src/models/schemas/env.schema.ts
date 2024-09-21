@@ -14,6 +14,13 @@ export const envTypeSchema = Type.Object({
 	MAIL_USER: Type.String(),
 	MAIL_PASSWORD: Type.String(),
 
+	S3_BUCKET: Type.String(),
+	S3_ID: Type.String(),
+	S3_KEY: Type.String(),
+	S3_REGION: Type.String(),
+	S3_END_POINT: Type.String(),
+	S3_HOST: Type.String(),
+
 	DB_MARIABD_USER: Type.String(),
 	DB_MARIABD_PASSWORD: Type.String(),
 	DB_MARIABD_HOST: Type.String(),
