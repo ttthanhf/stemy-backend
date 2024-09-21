@@ -12,6 +12,7 @@
 	"main": "./dist/main.js",
 	"type": "commonjs",
 	"dependencies": {
+		"@aws-sdk/client-s3": "^3.654.0",
 		"@escape.tech/graphql-armor-cost-limit": "^2.2.0",
 		"@escape.tech/graphql-armor-max-aliases": "^2.5.0",
 		"@escape.tech/graphql-armor-max-depth": "^2.3.0",
