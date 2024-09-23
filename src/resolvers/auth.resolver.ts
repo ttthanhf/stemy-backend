@@ -1,8 +1,7 @@
 import { GraphQLError } from 'graphql';
 import { AccessTokenResponse } from 'models/responses/token.response';
-import { Arg, Args, Mutation, Query, Resolver } from 'type-graphql';
+import { Arg, Args, Mutation, Resolver } from 'type-graphql';
 import { RegisterArgs } from '~types/args/auth.arg';
-import { AuthProviderName } from '~constants/oauth2.constant';
 import { User } from '~entities/user.entity';
 import { Oauth2Service } from '~services/oauth2.service';
 import { UserService } from '~services/user.service';
@@ -51,11 +50,6 @@ export class AuthResolver {
 
 		const access_token = UserService.generateUserAccessToken(user);
 		return { access_token };
-	}
-
-	@Query(() => String)
-	async getOauth2GoogleURL() {
-		return Oauth2Service.getOauth2URL(AuthProviderName.GOOGLE);
 	}
 
 	@Mutation(() => AccessTokenResponse)

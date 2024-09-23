@@ -9,7 +9,6 @@ export const envTypeSchema = Type.Object({
 
 	OAUTH2_GOOGLE_CLIENT_ID: Type.String(),
 	OAUTH2_GOOGLE_CLIENT_SECRET: Type.String(),
-	OAUTH2_GOOGLE_REDIRECT_URI_LOGIN: Type.String(),
 
 	MAIL_USER: Type.String(),
 	MAIL_PASSWORD: Type.String(),
@@ -32,7 +31,12 @@ export const envTypeSchema = Type.Object({
 
 	JWT_EXPIRE: Type.String(),
 	JWT_ALGORITHM: Type.String(),
-	JWT_KEY: Type.String()
+	JWT_KEY: Type.String(),
+
+	VNPAY_ID: Type.String(),
+	VNPAY_KEY: Type.String(),
+	VNPAY_REDIRECT: Type.String(),
+	VNPAY_URL: Type.String()
 });
 
 export type EnvType = Static<typeof envTypeSchema>;

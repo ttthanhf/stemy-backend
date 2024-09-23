@@ -39,6 +39,10 @@ export class ProductService {
 	static async getProductById(id: number) {
 		return productRepository.findOne({ id });
 	}
+
+	static async updateProducts(products: Product[]) {
+		return await productRepository.save(products);
+	}
 }
 
 export class ProductCategoryService {

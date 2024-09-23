@@ -13,6 +13,7 @@ import logger from '~utils/logger.util';
 import { GraphQLError, ValidationContext } from 'graphql';
 import { CartResolver } from '~resolvers/cart.resolver';
 import { FileScalar, FileScalarType } from '~types/scalars/file.scalar';
+import { OrderResolver } from '~resolvers/order.resolver';
 
 function logReject(ctx: ValidationContext | null, error: GraphQLError) {
 	const info = ctx?.getDocument().loc?.source.body.trim().replace(/\s+/g, ' ');
@@ -22,7 +23,13 @@ function logReject(ctx: ValidationContext | null, error: GraphQLError) {
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any*/
 export const yogaConfig: YogaServerOptions<any, any> = {
 	schema: buildSchema({
-		resolvers: [UserResolver, AuthResolver, ProductResolver, CartResolver],
+		resolvers: [
+			UserResolver,
+			AuthResolver,
+			ProductResolver,
+			CartResolver,
+			OrderResolver
+		],
 		globalMiddlewares: [GlobalMiddleware.ErrorInterceptor],
 		scalarsMap: [{ type: FileScalarType, scalar: FileScalar }]
 	}),

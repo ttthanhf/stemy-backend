@@ -22,7 +22,12 @@ export abstract class BaseRepository<Entity extends object> {
 		return mikroOrmDb.em.fork().create(this.entity, entity);
 	}
 
-	async save(entity: Entity): Promise<void> {
+	async save(
+		entity:
+			| AnyEntity
+			| Reference<AnyEntity>
+			| Iterable<AnyEntity | Reference<AnyEntity>>
+	): Promise<void> {
 		return mikroOrmDb.em.fork().persistAndFlush(entity);
 	}
 
@@ -75,5 +80,9 @@ export abstract class BaseRepository<Entity extends object> {
 			| Iterable<AnyEntity | Reference<AnyEntity>>
 	) {
 		return mikroOrmDb.em.fork().removeAndFlush(entity);
+	}
+
+	async getRepository() {
+		return mikroOrmDb.em.getRepository(this.entity);
 	}
 }

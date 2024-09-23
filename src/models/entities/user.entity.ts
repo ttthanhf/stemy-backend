@@ -23,10 +23,8 @@ import { Feedback } from './feedback.entity';
 @ObjectType()
 @Entity()
 export class User extends BaseEntity {
-	@Field({ nullable: true })
-	@Property({
-		nullable: true
-	})
+	@Field()
+	@Property()
 	fullName!: string;
 
 	@Field({ nullable: true })
@@ -35,7 +33,7 @@ export class User extends BaseEntity {
 	})
 	phone!: string;
 
-	@Field({ nullable: true })
+	@Field()
 	@Property()
 	email!: string;
 

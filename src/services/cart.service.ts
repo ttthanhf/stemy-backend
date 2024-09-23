@@ -88,4 +88,19 @@ export class CartService {
 
 		return await cartRepository.remove(cart);
 	}
+
+	static async getCartsByCartIdsAndUserId(cartIds: number[], userId: number) {
+		return cartRepository.find({
+			id: {
+				$in: cartIds
+			},
+			user: {
+				id: userId
+			}
+		});
+	}
+
+	static async removeCarts(carts: Cart[]) {
+		return await cartRepository.remove(carts);
+	}
 }
