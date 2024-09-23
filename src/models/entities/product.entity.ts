@@ -47,6 +47,10 @@ export class Product extends BaseEntity {
 	@Field(() => Int)
 	@Property({ default: 0 })
 	sold!: number;
+
+	@Field(() => Int)
+	@Property({ default: 0 })
+	rating!: number;
 }
 
 @ObjectType()

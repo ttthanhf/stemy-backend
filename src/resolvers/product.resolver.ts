@@ -40,6 +40,15 @@ export class ProductResolver {
 		};
 	}
 
+	@Query(() => Product)
+	async product(@Info() info: GraphQLResolveInfo, @Arg('id') id: number) {
+		const fields = ResolverUtil.getNodes(
+			info.fieldNodes[0].selectionSet?.selections
+		);
+
+		return await ProductService.getProductById(id, fields);
+	}
+
 	@Mutation(() => Product)
 	async createProduct(
 		@Arg('input') input: ProductInput,
