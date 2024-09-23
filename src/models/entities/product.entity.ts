@@ -1,15 +1,17 @@
 import {
 	Collection,
 	Entity,
+	Enum,
+	ManyToMany,
 	ManyToOne,
 	OneToMany,
 	OneToOne,
-	Property,
-	Rel
+	Property
 } from '@mikro-orm/core';
 import { BaseEntity } from './base.entity';
 import { Field, Int, ObjectType } from 'type-graphql';
 import { Feedback } from './feedback.entity';
+import { CategoryType } from '~constants/category.constant';
 
 @ObjectType()
 @Entity()
@@ -26,9 +28,13 @@ export class Product extends BaseEntity {
 	@Property()
 	price!: number;
 
-	@Field(() => ProductCategory)
-	@ManyToOne(() => ProductCategory)
-	category!: Rel<ProductCategory>;
+	@Field(() => [ProductCategory])
+	@ManyToMany(
+		() => ProductCategory,
+		(productCategory) => productCategory.products,
+		{ owner: true }
+	)
+	categories = new Collection<ProductCategory>(this);
 
 	@Field(() => [Feedback])
 	@OneToMany(() => Feedback, (feedback) => feedback.product)
@@ -46,9 +52,20 @@ export class Product extends BaseEntity {
 @ObjectType()
 @Entity()
 export class ProductCategory extends BaseEntity {
+	@ManyToMany(() => Product, (product) => product.categories)
+	products = new Collection<Product>(this);
+
 	@Field()
 	@Property()
 	name!: string;
+
+	@Field()
+	@Property()
+	title!: string;
+
+	@Field(() => [CategoryType])
+	@Enum(() => CategoryType)
+	type!: CategoryType;
 }
 
 @ObjectType()

@@ -1,3 +1,5 @@
+import { GraphQLError } from 'graphql';
+import { env } from '~configs/env.config';
 import { Product, ProductImage, ProductLab } from '~entities/product.entity';
 import {
 	productCategoryRepository,
@@ -6,11 +8,12 @@ import {
 	productRepository
 } from '~repositories/product.repository';
 import { PageInfoArgs, SortOrderArgs } from '~types/args/pagination.arg';
+import { ProductInput } from '~types/inputs/product.input';
+import { FileUpload } from '~types/scalars/file.scalar';
+import { MapperUtil } from '~utils/mapper.util';
+import { NumberUtil } from '~utils/number.util';
 import { PaginationUtil } from '~utils/pagination.util';
 import { UploadService } from './upload.service';
-import { NumberUtil } from '~utils/number.util';
-import { FileUpload } from '~types/scalars/file.scalar';
-import { env } from '~configs/env.config';
 
 export class ProductService {
 	static async getProductsPagination(
@@ -32,7 +35,17 @@ export class ProductService {
 		);
 	}
 
-	static async createProduct(product: Product) {
+	static async createProduct(input: ProductInput) {
+		const productCategories =
+			await ProductCategoryService.getProductCategoryByIds(input.categoryIds);
+
+		if (!productCategories) {
+			throw new GraphQLError('Category not found');
+		}
+
+		const product = MapperUtil.mapObjectToClass(input, Product);
+		productCategories.forEach((category) => product.categories.add(category));
+
 		return productRepository.createAndSave(product);
 	}
 
@@ -46,8 +59,12 @@ export class ProductService {
 }
 
 export class ProductCategoryService {
-	static async getProductCategoryById(id: number) {
-		return productCategoryRepository.findOne({ id });
+	static async getProductCategoryByIds(ids: number[]) {
+		return productCategoryRepository.find({
+			id: {
+				$in: ids
+			}
+		});
 	}
 }
 
