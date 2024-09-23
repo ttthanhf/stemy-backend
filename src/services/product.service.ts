@@ -49,8 +49,9 @@ export class ProductService {
 		return productRepository.createAndSave(product);
 	}
 
-	static async getProductById(id: number) {
-		return productRepository.findOne({ id });
+	/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+	static async getProductById(id: number, fields?: any) {
+		return productRepository.findOne({ id }, { fields });
 	}
 
 	static async updateProducts(products: Product[]) {
