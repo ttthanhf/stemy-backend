@@ -6,36 +6,15 @@ import {
 	Oauth2Client
 } from '~types/oauth2.type';
 import { AuthProviderName } from '~constants/oauth2.constant';
+import { GraphQLError } from 'graphql';
 
 export class Oauth2Service {
 	private static OAUTH2: Record<AuthProviderName, Oauth2Client> = {
 		google: {
 			client_id: env.OAUTH2_GOOGLE_CLIENT_ID,
-			client_secret: env.OAUTH2_GOOGLE_CLIENT_SECRET,
-			redirect_uri: {
-				login: env.OAUTH2_GOOGLE_REDIRECT_URI_LOGIN
-			}
+			client_secret: env.OAUTH2_GOOGLE_CLIENT_SECRET
 		}
 	} as const;
-
-	private static getOauth2GoogleURL() {
-		const querystring = QueryString.stringify({
-			response_type: 'code',
-			client_id: this.OAUTH2.google.client_id,
-			redirect_uri: this.OAUTH2.google.redirect_uri.login,
-			scope: 'email+profile+openid'
-		});
-		return 'https://accounts.google.com/o/oauth2/v2/auth?' + querystring;
-	}
-
-	static getOauth2URL(authProviderName: AuthProviderName) {
-		switch (authProviderName) {
-			case AuthProviderName.GOOGLE:
-				return this.getOauth2GoogleURL();
-			default:
-				return null;
-		}
-	}
 
 	private static async getGoogleToken(
 		code: string
@@ -44,7 +23,6 @@ export class Oauth2Service {
 			code,
 			client_id: this.OAUTH2[AuthProviderName.GOOGLE]['client_id'],
 			client_secret: this.OAUTH2[AuthProviderName.GOOGLE]['client_secret'],
-			redirect_uri: this.OAUTH2[AuthProviderName.GOOGLE]['redirect_uri'].login,
 			grant_type: 'authorization_code'
 		});
 
@@ -55,7 +33,13 @@ export class Oauth2Service {
 			}
 		);
 
-		return await fetchData.json();
+		const response: OAUTH2_GOOGLE_TOKEN = await fetchData.json();
+		if (response.error) {
+			throw new GraphQLError(
+				response.error_description + ': ' + response.error
+			);
+		}
+		return fetchData.json();
 	}
 	private static async getGoogleUserInfo(
 		access_token: string,
@@ -69,7 +53,7 @@ export class Oauth2Service {
 				}
 			}
 		);
-		return await fetchData.json();
+		return fetchData.json();
 	}
 
 	static async getInfoByLoginWithGoogle(code: string) {

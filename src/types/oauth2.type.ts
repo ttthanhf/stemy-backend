@@ -22,7 +22,4 @@ export type OAUTH2_GOOGLE_USER_INFO = {
 export type Oauth2Client = {
 	client_id: string;
 	client_secret: string;
-	redirect_uri: {
-		login: string;
-	};
 };

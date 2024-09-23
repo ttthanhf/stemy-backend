@@ -8,7 +8,7 @@ import {
 	Rel
 } from '@mikro-orm/core';
 import { BaseEntity } from './base.entity';
-import { Field, ObjectType } from 'type-graphql';
+import { Field, Int, ObjectType } from 'type-graphql';
 import { Feedback } from './feedback.entity';
 
 @ObjectType()
@@ -22,7 +22,7 @@ export class Product extends BaseEntity {
 	@Property()
 	description!: string;
 
-	@Field()
+	@Field(() => Int)
 	@Property()
 	price!: number;
 
@@ -37,6 +37,10 @@ export class Product extends BaseEntity {
 	@Field(() => [ProductImage])
 	@OneToMany(() => ProductImage, (productImage) => productImage.product)
 	images = new Collection<ProductImage>(this);
+
+	@Field(() => Int)
+	@Property({ default: 0 })
+	sold!: number;
 }
 
 @ObjectType()

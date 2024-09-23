@@ -4,7 +4,8 @@ export enum OrderStatus {
 	CREATED = 'created',
 	DELIVERING = 'delivering',
 	DELIVERED = 'delivered',
-	FAIL = 'fail'
+	FAIL = 'fail',
+	PAID = 'paid'
 }
 
 registerEnumType(OrderStatus, {

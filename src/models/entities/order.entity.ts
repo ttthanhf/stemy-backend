@@ -15,14 +15,15 @@ import { User } from './user.entity';
 import { Product } from './product.entity';
 import { OrderStatus } from '~constants/order.constant';
 import { Field, Int, ObjectType } from 'type-graphql';
+import { PaymentProvider } from '~constants/payment.constant';
 
 @Embeddable()
 class OrderPaymentEmbeddable {
-	@Property()
+	@Property({ nullable: true })
 	id!: string;
 
-	@Property()
-	provider!: string;
+	@Enum(() => PaymentProvider)
+	provider!: PaymentProvider;
 }
 
 @ObjectType()
@@ -36,6 +37,9 @@ export class Order extends BaseEntity {
 
 	@Property()
 	address!: string;
+
+	@Property()
+	phone!: string;
 
 	@Enum(() => OrderStatus)
 	status!: OrderStatus;

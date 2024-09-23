@@ -11,6 +11,7 @@
 		"mikro",
 		"pino",
 		"stemy",
-		"typebox"
+		"typebox",
+		"VNPAY"
 	]
 }
