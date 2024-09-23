@@ -4,16 +4,14 @@ import { ProductsWithPaginationResponse } from 'models/responses/pagination/prod
 import { Arg, Args, Info, Mutation, Query, Resolver } from 'type-graphql';
 import { Product } from '~entities/product.entity';
 import {
-	ProductCategoryService,
 	ProductImageService,
 	ProductLabService,
 	ProductService
 } from '~services/product.service';
 import { PageInfoArgs, SortOrderArgs } from '~types/args/pagination.arg';
 import { ProductInput } from '~types/inputs/product.input';
-import { MapperUtil } from '~utils/mapper.util';
-import { ResolverUtil } from '~utils/resolver.util';
 import { FileScalar, FileUpload } from '~types/scalars/file.scalar';
+import { ResolverUtil } from '~utils/resolver.util';
 
 @Resolver()
 export class ProductResolver {
@@ -68,27 +66,16 @@ export class ProductResolver {
 			throw new GraphQLError(lab.name + ' must not exceed 1MB');
 		}
 
-		const productCategory = await ProductCategoryService.getProductCategoryById(
-			input.categoryId
-		);
-
-		if (!productCategory) {
-			throw new GraphQLError('Category not found');
-		}
-
-		let newProduct = MapperUtil.mapObjectToClass(input, Product);
-		newProduct.category = productCategory;
-
-		newProduct = await ProductService.createProduct(newProduct);
+		const product = await ProductService.createProduct(input);
 
 		// Create image
 		for await (const image of images) {
-			await ProductImageService.createProductImage(newProduct, image);
+			await ProductImageService.createProductImage(product, image);
 		}
 
 		// Create lab
-		await ProductLabService.createProductLab(newProduct, lab);
+		await ProductLabService.createProductLab(product, lab);
 
-		return newProduct;
+		return product;
 	}
 }

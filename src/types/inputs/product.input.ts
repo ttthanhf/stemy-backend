@@ -11,6 +11,6 @@ export class ProductInput {
 	@Field(() => Int)
 	price!: number;
 
-	@Field(() => Int)
-	categoryId!: number;
+	@Field(() => [Int])
+	categoryIds!: number[];
 }
