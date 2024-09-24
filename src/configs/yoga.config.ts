@@ -1,19 +1,20 @@
+import { costLimitPlugin } from '@escape.tech/graphql-armor-cost-limit';
+import { maxAliasesPlugin } from '@escape.tech/graphql-armor-max-aliases';
+import { maxDepthPlugin } from '@escape.tech/graphql-armor-max-depth';
+import { maxDirectivesPlugin } from '@escape.tech/graphql-armor-max-directives';
+import { maxTokensPlugin } from '@escape.tech/graphql-armor-max-tokens';
+import { GraphQLError, ValidationContext } from 'graphql';
 import { useExecutionCancellation, YogaServerOptions } from 'graphql-yoga';
 import { buildSchema } from 'type-graphql';
-import { UserResolver } from '~resolvers/user.resolver';
-import { AuthResolver } from '~resolvers/auth.resolver';
-import { ProductResolver } from '~resolvers/product.resolver';
 import { GlobalMiddleware } from '~middlewares/global.middleware';
-import { maxDepthPlugin } from '@escape.tech/graphql-armor-max-depth';
-import { maxAliasesPlugin } from '@escape.tech/graphql-armor-max-aliases';
-import { maxDirectivesPlugin } from '@escape.tech/graphql-armor-max-directives';
-import { costLimitPlugin } from '@escape.tech/graphql-armor-cost-limit';
-import { maxTokensPlugin } from '@escape.tech/graphql-armor-max-tokens';
-import logger from '~utils/logger.util';
-import { GraphQLError, ValidationContext } from 'graphql';
+import { AuthResolver } from '~resolvers/auth.resolver';
 import { CartResolver } from '~resolvers/cart.resolver';
-import { FileScalar, FileScalarType } from '~types/scalars/file.scalar';
 import { OrderResolver } from '~resolvers/order.resolver';
+import { ProductResolver } from '~resolvers/product.resolver';
+import { ProductCategoryResolver } from '~resolvers/productCategory.resolver';
+import { UserResolver } from '~resolvers/user.resolver';
+import { FileScalar, FileScalarType } from '~types/scalars/file.scalar';
+import logger from '~utils/logger.util';
 
 function logReject(ctx: ValidationContext | null, error: GraphQLError) {
 	const info = ctx?.getDocument().loc?.source.body.trim().replace(/\s+/g, ' ');
@@ -28,7 +29,8 @@ export const yogaConfig: YogaServerOptions<any, any> = {
 			AuthResolver,
 			ProductResolver,
 			CartResolver,
-			OrderResolver
+			OrderResolver,
+			ProductCategoryResolver
 		],
 		globalMiddlewares: [GlobalMiddleware.ErrorInterceptor],
 		scalarsMap: [{ type: FileScalarType, scalar: FileScalar }]

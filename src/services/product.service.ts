@@ -67,6 +67,11 @@ export class ProductCategoryService {
 			}
 		});
 	}
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	static async getProductCategories(fields: any) {
+		return productCategoryRepository.find({}, { fields });
+	}
 }
 
 export class ProductImageService {
