@@ -11,9 +11,11 @@ export abstract class BaseEntity {
 	})
 	readonly id!: number;
 
+	@Field()
 	@Property({ type: 'datetime' })
 	readonly createdAt: Date = new Date();
 
+	@Field()
 	@Property({ onUpdate: () => new Date(), type: 'datetime' })
 	readonly updatedAt: Date = new Date();
 
