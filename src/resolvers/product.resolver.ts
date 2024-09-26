@@ -68,7 +68,7 @@ export class ProductResolver {
 			}
 		});
 
-		if (lab.type == 'application/pdf') {
+		if (lab.type != 'application/pdf') {
 			throw new GraphQLError(lab.name + ' not a PDF');
 		}
 		if (lab.blobParts[0].byteLength > 1000000) {
