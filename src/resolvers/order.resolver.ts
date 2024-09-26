@@ -1,5 +1,6 @@
 import { GraphQLError } from 'graphql';
 import { Arg, Ctx, Int, Mutation, UseMiddleware } from 'type-graphql';
+import { OrderStatus } from '~constants/order.constant';
 import { PaymentProvider } from '~constants/payment.constant';
 import { Product } from '~entities/product.entity';
 import { AuthMiddleware } from '~middlewares/auth.middleware';
@@ -69,5 +70,26 @@ export class OrderResolver {
 		await ProductService.updateProducts(products);
 
 		return 'Success';
+	}
+
+	@UseMiddleware(AuthMiddleware.LoginRequire)
+	@Mutation(() => String)
+	async repayOrder(@Ctx() ctx: Context, @Arg('orderId') orderId: number) {
+		const userId = ctx.res.model.data.user.id;
+		const user = await UserService.getUserById(userId);
+		if (!user) {
+			throw new GraphQLError('Something error with this user');
+		}
+
+		const order = await OrderService.getOrderByIdAndUserId(orderId, userId);
+		if (!order) {
+			throw new GraphQLError('Order not found');
+		}
+		if (order.status != OrderStatus.UNPAID) {
+			throw new GraphQLError('Order already paid');
+		}
+
+		const VNPayUrl = OrderService.getVNPayURL(order);
+		return VNPayUrl;
 	}
 }
