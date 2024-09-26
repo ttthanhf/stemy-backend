@@ -26,7 +26,7 @@ export class OrderService {
 		order.phone = phone;
 		order.address = address;
 		order.payment.provider = paymentProvider;
-		order.status = OrderStatus.CREATED;
+		order.status = OrderStatus.UNPAID;
 
 		orderItems.forEach((orderItem) => order.orderItems.add(orderItem));
 		order.totalPrice = orderItems.reduce(
@@ -111,7 +111,7 @@ export class OrderService {
 			throw new GraphQLError('Order not found');
 		}
 
-		if (order.status != OrderStatus.CREATED) {
+		if (order.status != OrderStatus.UNPAID) {
 			throw new GraphQLError('Order cant update status');
 		}
 
@@ -139,5 +139,14 @@ export class OrderService {
 		if (secureHash != input.vnp_SecureHash) {
 			throw new GraphQLError('Signature not correct');
 		}
+	}
+
+	static async getOrderByIdAndUserId(orderId: number, userId: number) {
+		return orderRepository.findOne({
+			id: orderId,
+			user: {
+				id: userId
+			}
+		});
 	}
 }
