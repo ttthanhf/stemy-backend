@@ -39,7 +39,7 @@ export class Oauth2Service {
 				response.error_description + ': ' + response.error
 			);
 		}
-		return fetchData.json();
+		return response;
 	}
 	private static async getGoogleUserInfo(
 		access_token: string,

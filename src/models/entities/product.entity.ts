@@ -56,6 +56,7 @@ export class Product extends BaseEntity {
 @ObjectType()
 @Entity()
 export class ProductCategory extends BaseEntity {
+	@Field(() => [Product])
 	@ManyToMany(() => Product, (product) => product.categories)
 	products = new Collection<Product>(this);
 

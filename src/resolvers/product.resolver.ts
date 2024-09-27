@@ -22,8 +22,7 @@ export class ProductResolver {
 		@Args() SortOrderArgs: SortOrderArgs
 	) {
 		const fields = ResolverUtil.getFields(
-			info.fieldNodes[0].selectionSet?.selections,
-			'items.'
+			info.fieldNodes[0].selectionSet?.selections
 		);
 
 		const [products, totalItem] = await ProductService.getProductsPagination(
@@ -42,7 +41,7 @@ export class ProductResolver {
 
 	@Query(() => Product)
 	async product(@Info() info: GraphQLResolveInfo, @Arg('id') id: number) {
-		const fields = ResolverUtil.getNodes(
+		const fields = ResolverUtil.getFields(
 			info.fieldNodes[0].selectionSet?.selections
 		);
 

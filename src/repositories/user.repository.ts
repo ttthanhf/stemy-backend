@@ -1,4 +1,4 @@
-import { User } from '~entities/user.entity';
+import { User, UserLab } from '~entities/user.entity';
 import { BaseRepository } from './base.repository';
 
 class UserRepository extends BaseRepository<User> {
@@ -6,5 +6,11 @@ class UserRepository extends BaseRepository<User> {
 		super(User);
 	}
 }
+export const userRepository = new UserRepository();
 
-export default new UserRepository();
+class UserLabRepository extends BaseRepository<UserLab> {
+	constructor() {
+		super(UserLab);
+	}
+}
+export const userLabRepository = new UserLabRepository();
