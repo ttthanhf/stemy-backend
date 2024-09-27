@@ -8,7 +8,7 @@ import { ResolverUtil } from '~utils/resolver.util';
 export class ProductCategoryResolver {
 	@Query(() => [ProductCategory])
 	async productCategories(@Info() info: GraphQLResolveInfo) {
-		const fields = ResolverUtil.getFields(
+		const fields = ResolverUtil.getNodes(
 			info.fieldNodes[0].selectionSet?.selections
 		);
 		const categories =

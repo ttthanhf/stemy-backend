@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 export class ResolverUtil {
-	private static getNodes(selections: any) {
+	static getNodes(selections: any) {
 		return selections
 			.map((selection: any) => {
 				if (selection.selectionSet) {

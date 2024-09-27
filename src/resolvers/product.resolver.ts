@@ -41,7 +41,7 @@ export class ProductResolver {
 
 	@Query(() => Product)
 	async product(@Info() info: GraphQLResolveInfo, @Arg('id') id: number) {
-		const fields = ResolverUtil.getFields(
+		const fields = ResolverUtil.getNodes(
 			info.fieldNodes[0].selectionSet?.selections
 		);
 

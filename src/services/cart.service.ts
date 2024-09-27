@@ -89,7 +89,7 @@ export class CartService {
 			throw new GraphQLError('Product not found in cart');
 		}
 
-		return await cartRepository.remove(cart);
+		return cartRepository.remove(cart);
 	}
 
 	static async getCartsByCartIdsAndUserId(cartIds: number[], userId: number) {
@@ -104,6 +104,6 @@ export class CartService {
 	}
 
 	static async removeCarts(carts: Cart[]) {
-		return await cartRepository.remove(carts);
+		return cartRepository.remove(carts);
 	}
 }
