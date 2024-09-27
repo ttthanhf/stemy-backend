@@ -6,11 +6,14 @@ import cartRepository from '~repositories/cart.repository';
 
 export class CartService {
 	static async getCartsByUserId(userId: number) {
-		return cartRepository.find({
-			user: {
-				id: userId
-			}
-		});
+		return cartRepository.find(
+			{
+				user: {
+					id: userId
+				}
+			},
+			{ populate: ['product', 'product.images'] }
+		);
 	}
 
 	static async countProductInCart(userId: number) {
