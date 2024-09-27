@@ -6,7 +6,7 @@ import cartRepository from '~repositories/cart.repository';
 
 export class CartService {
 	static async getCartsByUserId(userId: number) {
-		return cartRepository.findOne({
+		return cartRepository.find({
 			user: {
 				id: userId
 			}

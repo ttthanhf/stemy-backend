@@ -9,7 +9,7 @@ import { Context } from '~types/context.type';
 
 @UseMiddleware(AuthMiddleware.LoginRequire)
 export class CartResolver {
-	@Query(() => [Cart], { nullable: true })
+	@Query(() => [Cart])
 	async carts(@Ctx() ctx: Context) {
 		const userId = ctx.res.model.data.user.id;
 
