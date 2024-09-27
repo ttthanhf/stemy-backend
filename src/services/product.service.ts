@@ -106,7 +106,8 @@ export class ProductLabService {
 			NumberUtil.getRandomNumberByLength(3) +
 			'.pdf';
 
-		await UploadService.uploadFile(labName, lab.blobParts[0]);
+		const buffer = Buffer.concat(lab.blobParts);
+		await UploadService.uploadFile(labName, buffer);
 
 		const productLab = new ProductLab();
 		productLab.product = product;
