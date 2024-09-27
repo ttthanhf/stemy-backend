@@ -1,5 +1,8 @@
 import { User } from '~entities/user.entity';
-import userRepository from '~repositories/user.repository';
+import {
+	userLabRepository,
+	userRepository
+} from '~repositories/user.repository';
 import { env } from '~configs/env.config';
 import { DateTimeUtil } from '~utils/datetime.util';
 import { JWTUtil } from '~utils/jwt.util';
@@ -48,6 +51,35 @@ export class UserService {
 			},
 			{
 				fields
+			}
+		);
+	}
+}
+
+export class UserLabService {
+	static async getUserLabByUserIdAndProductId(
+		userId: number,
+		productId: number
+	) {
+		return userLabRepository.findOne(
+			{
+				user: {
+					id: userId
+				},
+				productLab: {
+					product: {
+						id: productId
+					}
+				}
+			},
+			{
+				populate: [
+					'productLab',
+					'productLab.product',
+					'user',
+					'orderItem',
+					'orderItem.order'
+				]
 			}
 		);
 	}

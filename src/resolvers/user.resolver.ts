@@ -14,7 +14,7 @@ export class UserResolver {
 	@RoleRequire([Role.STAFF])
 	@Query(() => [User])
 	async users(@Info() info: GraphQLResolveInfo) {
-		const fields = ResolverUtil.getNodes(
+		const fields = ResolverUtil.getFields(
 			info.fieldNodes[0].selectionSet?.selections
 		);
 
@@ -24,7 +24,7 @@ export class UserResolver {
 	@RoleRequire([Role.STAFF])
 	@Query(() => User, { nullable: true })
 	async user(@Args() userArgs: UserArg, @Info() info: GraphQLResolveInfo) {
-		const fields = ResolverUtil.getNodes(
+		const fields = ResolverUtil.getFields(
 			info.fieldNodes[0].selectionSet?.selections
 		);
 		const filters = Object.assign({}, userArgs);
@@ -35,7 +35,7 @@ export class UserResolver {
 	@UseMiddleware(AuthMiddleware.LoginRequire)
 	@Query(() => User)
 	async me(@Info() info: GraphQLResolveInfo, @Ctx() ctx: Context) {
-		const fields = ResolverUtil.getNodes(
+		const fields = ResolverUtil.getFields(
 			info.fieldNodes[0].selectionSet?.selections
 		);
 		const userId = ctx.res.model.data.user.id;
