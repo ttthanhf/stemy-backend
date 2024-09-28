@@ -54,6 +54,10 @@ export class User extends BaseEntity {
 	@OneToMany(() => Feedback, (feedback) => feedback.user)
 	feedbacks = new Collection<Feedback>(this);
 
+	@Field({ nullable: true })
+	@Property({ nullable: true })
+	address!: string;
+
 	@BeforeCreate()
 	async encryptPassword() {
 		if (this.password) {

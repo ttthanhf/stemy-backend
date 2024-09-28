@@ -16,7 +16,7 @@ export class OrderResolver {
 	@Mutation(() => String)
 	async createOrder(
 		@Ctx() ctx: Context,
-		@Arg('cartIds', () => Int) cartIds: number[],
+		@Arg('cartIds', () => [Int]) cartIds: number[],
 		@Arg('phone') phone: string,
 		@Arg('address') address: string,
 		@Arg('paymentProvider') paymentProvider: PaymentProvider
