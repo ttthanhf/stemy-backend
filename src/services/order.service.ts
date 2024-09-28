@@ -171,6 +171,31 @@ export class OrderService {
 			}
 		});
 	}
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	static async getOrderBySearch(search: string, userId: number, fields: any) {
+		const parsedSearch = parseInt(search, 10);
+		return orderRepository.find(
+			{
+				$or: [
+					{ id: !isNaN(parsedSearch) ? parsedSearch : undefined },
+					{
+						orderItems: {
+							product: {
+								name: {
+									$ilike: `%${search}%`
+								}
+							}
+						}
+					}
+				],
+				user: {
+					id: userId
+				}
+			},
+			{ fields }
+		);
+	}
 }
 
 export class OrderItemService {

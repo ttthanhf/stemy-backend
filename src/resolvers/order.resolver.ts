@@ -1,7 +1,16 @@
-import { GraphQLError } from 'graphql';
-import { Arg, Ctx, Int, Mutation, UseMiddleware } from 'type-graphql';
+import { GraphQLError, GraphQLResolveInfo } from 'graphql';
+import {
+	Arg,
+	Ctx,
+	Info,
+	Int,
+	Mutation,
+	Query,
+	UseMiddleware
+} from 'type-graphql';
 import { OrderStatus } from '~constants/order.constant';
 import { PaymentProvider } from '~constants/payment.constant';
+import { Order } from '~entities/order.entity';
 import { Product } from '~entities/product.entity';
 import { AuthMiddleware } from '~middlewares/auth.middleware';
 import { CartService } from '~services/cart.service';
@@ -10,6 +19,7 @@ import { ProductService } from '~services/product.service';
 import { UserService } from '~services/user.service';
 import { Context } from '~types/context.type';
 import { CheckoutOrderInput } from '~types/inputs/order.input';
+import { ResolverUtil } from '~utils/resolver.util';
 
 export class OrderResolver {
 	@UseMiddleware(AuthMiddleware.LoginRequire)
@@ -91,5 +101,21 @@ export class OrderResolver {
 
 		const VNPayUrl = OrderService.getVNPayURL(order);
 		return VNPayUrl;
+	}
+
+	@UseMiddleware(AuthMiddleware.LoginRequire)
+	@Query(() => [Order])
+	async searchOrder(
+		@Info() info: GraphQLResolveInfo,
+		@Ctx() ctx: Context,
+		@Arg('search') search: string
+	) {
+		const userId = ctx.res.model.data.user.id;
+
+		const fields = ResolverUtil.getNodes(
+			info.fieldNodes[0].selectionSet?.selections
+		);
+
+		return await OrderService.getOrderBySearch(search, userId, fields);
 	}
 }
