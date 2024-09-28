@@ -59,33 +59,12 @@ export class ProductService {
 	}
 
 	static async deleteProduct(id: number) {
-		const product = await productRepository.findOne(
-			{ id },
-			{ populate: ['images', 'lab'] }
-		);
+		const product = await productRepository.findOne({ id });
 
 		if (!product) {
 			throw new GraphQLError('Product not found');
 		}
 
-		// Remove associated images
-		const imageRemovalPromises = product.images
-			.getItems()
-			.map(async (image) => {
-				const imageEntity = await productImageRepository.findOne(image.id);
-				if (imageEntity) {
-					await productImageRepository.remove(imageEntity);
-				}
-			});
-
-		// Remove associated lab if it exists
-		const labRemovalPromise = product.lab
-			? productLabRepository.remove(product.lab)
-			: Promise.resolve();
-
-		await Promise.all([...imageRemovalPromises, labRemovalPromise]);
-
-		// Remove the product itself
 		await productRepository.remove(product);
 		return product;
 	}
