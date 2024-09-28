@@ -57,6 +57,38 @@ export class ProductService {
 	static async updateProducts(products: Product[]) {
 		return await productRepository.save(products);
 	}
+
+	static async deleteProduct(id: number) {
+		const product = await productRepository.findOne(
+			{ id },
+			{ populate: ['images', 'lab'] }
+		);
+
+		if (!product) {
+			throw new GraphQLError('Product not found');
+		}
+
+		// Remove associated images
+		const imageRemovalPromises = product.images
+			.getItems()
+			.map(async (image) => {
+				const imageEntity = await productImageRepository.findOne(image.id);
+				if (imageEntity) {
+					await productImageRepository.remove(imageEntity);
+				}
+			});
+
+		// Remove associated lab if it exists
+		const labRemovalPromise = product.lab
+			? productLabRepository.remove(product.lab)
+			: Promise.resolve();
+
+		await Promise.all([...imageRemovalPromises, labRemovalPromise]);
+
+		// Remove the product itself
+		await productRepository.remove(product);
+		return product;
+	}
 }
 
 export class ProductCategoryService {
@@ -96,7 +128,11 @@ export class ProductImageService {
 }
 
 export class ProductLabService {
-	static async createProductLab(product: Product, lab: FileUpload) {
+	static async createProductLab(
+		product: Product,
+		lab: FileUpload,
+		price: number
+	) {
 		const labName =
 			'stemy-product-' +
 			product.id +
@@ -112,6 +148,7 @@ export class ProductLabService {
 		const productLab = new ProductLab();
 		productLab.product = product;
 		productLab.url = env.S3_HOST + labName;
+		productLab.price = price;
 
 		await productLabRepository.createAndSave(productLab);
 	}
