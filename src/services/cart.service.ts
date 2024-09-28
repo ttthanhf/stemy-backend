@@ -13,7 +13,7 @@ export class CartService {
 					id: userId
 				}
 			},
-			{ populate: ['product', 'product.images'] }
+			{ populate: ['product', 'product.images', 'product.lab'] }
 		);
 	}
 

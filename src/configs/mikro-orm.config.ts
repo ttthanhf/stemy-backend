@@ -12,7 +12,9 @@ import {
 import { Order, OrderItem } from '~entities/order.entity';
 import { Feedback } from '~entities/feedback.entity';
 import { Cart } from '~entities/cart.entity';
+import { Ticket, TicketCategory } from '~entities/ticket.entity';
 
+const ticketEntities = [Ticket, TicketCategory];
 const orderEntities = [Order, OrderItem];
 const productEntities = [Product, ProductCategory, ProductLab, ProductImage];
 const userEntities = [User, UserLab];
@@ -21,7 +23,8 @@ const entities = [
 	...userEntities,
 	...productEntities,
 	...orderEntities,
-	...otherEntities
+	...otherEntities,
+	...ticketEntities
 ];
 
 export default defineConfig({

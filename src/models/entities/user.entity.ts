@@ -37,7 +37,7 @@ export class User extends BaseEntity {
 	@Property()
 	email!: string;
 
-	@Property()
+	@Property({ nullable: true })
 	password!: string;
 
 	@Field(() => Role)

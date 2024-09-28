@@ -12,6 +12,7 @@ import { CartResolver } from '~resolvers/cart.resolver';
 import { OrderResolver } from '~resolvers/order.resolver';
 import { ProductResolver } from '~resolvers/product.resolver';
 import { ProductCategoryResolver } from '~resolvers/productCategory.resolver';
+import { TicketResolver } from '~resolvers/ticket.resolver';
 import { UserResolver } from '~resolvers/user.resolver';
 import { FileScalar, FileScalarType } from '~types/scalars/file.scalar';
 import logger from '~utils/logger.util';
@@ -30,12 +31,13 @@ export const yogaConfig: YogaServerOptions<any, any> = {
 			ProductResolver,
 			CartResolver,
 			OrderResolver,
-			ProductCategoryResolver
+			ProductCategoryResolver,
+			TicketResolver
 		],
 		globalMiddlewares: [GlobalMiddleware.ErrorInterceptor],
 		scalarsMap: [{ type: FileScalarType, scalar: FileScalar }]
 	}),
-	maskedErrors: true,
+	maskedErrors: false,
 	plugins: [
 		useExecutionCancellation(),
 		maxDepthPlugin({

@@ -29,11 +29,11 @@ export class Product extends BaseEntity {
 	@Property()
 	price!: number;
 
+	@Field(() => ProductLab, { nullable: true })
 	@OneToOne(() => ProductLab, (productLab) => productLab.product, {
-		nullable: true,
-		owner: true
+		nullable: true
 	})
-	lab!: Rel<ProductLab>;
+	lab?: Rel<ProductLab>;
 
 	@Field(() => [ProductCategory])
 	@ManyToMany(
@@ -83,7 +83,7 @@ export class ProductCategory extends BaseEntity {
 @ObjectType()
 @Entity()
 export class ProductLab extends BaseEntity {
-	@OneToOne(() => Product, (product) => product.lab)
+	@OneToOne(() => Product, (product) => product.lab, { owner: true })
 	product!: Rel<Product>;
 
 	@Field()
