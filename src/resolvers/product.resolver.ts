@@ -82,8 +82,13 @@ export class ProductResolver {
 		}
 
 		// Create lab
-		await ProductLabService.createProductLab(product, lab);
+		await ProductLabService.createProductLab(product, lab, input.labPrice);
 
 		return product;
+	}
+
+	@Mutation(() => Product)
+	async deleteProduct(@Arg('id') id: number) {
+		return await ProductService.deleteProduct(id);
 	}
 }

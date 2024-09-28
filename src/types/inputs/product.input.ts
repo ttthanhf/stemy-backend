@@ -13,4 +13,7 @@ export class ProductInput {
 
 	@Field(() => [Int])
 	categoryIds!: number[];
+
+	@Field(() => Int)
+	labPrice!: number;
 }
