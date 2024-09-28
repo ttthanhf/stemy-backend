@@ -3,7 +3,7 @@ import { GraphQLError } from 'graphql';
 import { Arg, Ctx, Mutation } from 'type-graphql';
 import { Role } from '~constants/role.constant';
 import { Ticket } from '~entities/ticket.entity';
-import { OrderService } from '~services/order.service';
+import { OrderItemService } from '~services/order.service';
 import { TicketCategoryService, TicketService } from '~services/ticket.service';
 import { UserService } from '~services/user.service';
 import { Context } from '~types/context.type';
@@ -16,7 +16,7 @@ export class TicketResolver {
 		@Arg('comment') comment: string,
 		@Arg('title') title: string,
 		@Arg('categoryId') categoryId: number,
-		@Arg('orderId') orderId: number
+		@Arg('orderItemId') orderItemId: number
 	) {
 		const userId = ctx.res.model.data.user.id;
 		const user = await UserService.getUserById(userId);
@@ -30,15 +30,18 @@ export class TicketResolver {
 			throw new GraphQLError('Category not found');
 		}
 
-		const order = await OrderService.getOrderByIdAndUserId(orderId, userId);
-		if (!order) {
+		const orderItem = await OrderItemService.getOrderItemByIdAndUserId(
+			orderItemId,
+			userId
+		);
+		if (!orderItem) {
 			throw new GraphQLError('Order not found');
 		}
 
 		const newTicket = new Ticket();
 		newTicket.sender = user;
 		newTicket.category = category;
-		newTicket.order = order;
+		newTicket.orderItem = orderItem;
 		newTicket.senderComment = comment;
 		newTicket.title = title;
 

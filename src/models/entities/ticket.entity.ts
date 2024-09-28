@@ -12,7 +12,7 @@ import { Field, ObjectType } from 'type-graphql';
 import { TicketStatus } from '~constants/ticket.constant';
 import { User } from './user.entity';
 import { BaseEntity } from './base.entity';
-import { Order } from './order.entity';
+import { OrderItem } from './order.entity';
 
 @ObjectType()
 @Entity()
@@ -29,9 +29,9 @@ export class Ticket extends BaseEntity {
 	@Enum(() => TicketStatus)
 	status: TicketStatus = TicketStatus.OPEN;
 
-	@Field(() => Order)
-	@ManyToOne(() => Order)
-	order!: Order;
+	@Field(() => OrderItem)
+	@ManyToOne(() => OrderItem)
+	orderItem!: OrderItem;
 
 	@Field(() => User)
 	@OneToOne(() => User)

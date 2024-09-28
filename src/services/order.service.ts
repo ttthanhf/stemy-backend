@@ -6,7 +6,10 @@ import { PaymentProvider } from '~constants/payment.constant';
 import { Cart } from '~entities/cart.entity';
 import { Order, OrderItem } from '~entities/order.entity';
 import { User } from '~entities/user.entity';
-import { orderRepository } from '~repositories/order.repository';
+import {
+	orderItemRepository,
+	orderRepository
+} from '~repositories/order.repository';
 import { CheckoutOrderInput } from '~types/inputs/order.input';
 import { DateTimeUtil } from '~utils/datetime.util';
 import { NumberUtil } from '~utils/number.util';
@@ -33,7 +36,7 @@ export class OrderService {
 			if (orderItem.hasLab) {
 				return (
 					orderItem.quantity * orderItem.productPrice +
-					orderItem.product.lab.price
+					orderItem.product.lab!.price
 				);
 			} else {
 				return orderItem.quantity * orderItem.productPrice;
@@ -60,7 +63,7 @@ export class OrderService {
 			orderItem.hasLab = cart.hasLab;
 
 			if (cart.hasLab) {
-				orderItem.labPrice = orderItem.product.lab.price;
+				orderItem.labPrice = orderItem.product.lab!.price;
 			} else {
 				orderItem.labPrice = 0;
 			}
@@ -165,6 +168,19 @@ export class OrderService {
 			id: orderId,
 			user: {
 				id: userId
+			}
+		});
+	}
+}
+
+export class OrderItemService {
+	static async getOrderItemByIdAndUserId(id: number, userId: number) {
+		return orderItemRepository.findOne({
+			id,
+			order: {
+				user: {
+					id: userId
+				}
 			}
 		});
 	}
