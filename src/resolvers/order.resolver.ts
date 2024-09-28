@@ -31,7 +31,7 @@ export class OrderResolver {
 
 		const carts = await CartService.getCartsByIdsAndUserId(cartIds, userId);
 
-		const orderItems = OrderService.prepareOrderItem(carts);
+		const orderItems = await OrderService.prepareOrderItem(carts);
 
 		const order = await OrderService.createOrder(
 			user,

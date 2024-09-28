@@ -29,34 +29,44 @@ export class OrderService {
 		order.status = OrderStatus.UNPAID;
 
 		orderItems.forEach((orderItem) => order.orderItems.add(orderItem));
-		order.totalPrice = orderItems.reduce((totalValue, orderItem) => {
+		const orderItemsWithLabPrices = orderItems.map((orderItem) => {
 			if (orderItem.hasLab) {
 				return (
-					totalValue +
-					(orderItem.quantity + orderItem.productPrice) +
+					orderItem.quantity * orderItem.productPrice +
 					orderItem.product.lab.price
 				);
 			} else {
-				return totalValue + (orderItem.quantity + orderItem.productPrice);
+				return orderItem.quantity * orderItem.productPrice;
 			}
-		}, 0);
+		});
+		order.totalPrice = orderItemsWithLabPrices.reduce(
+			(totalValue, itemPrice) => {
+				return totalValue + itemPrice;
+			},
+			0
+		);
 
 		return orderRepository.createAndSave(order);
 	}
 
-	static prepareOrderItem(carts: Cart[]) {
+	static async prepareOrderItem(carts: Cart[]) {
 		const orderItems: OrderItem[] = [];
-		carts.forEach((cart) => {
+		for await (const cart of carts) {
 			const orderItem = new OrderItem();
 			orderItem.product = cart.product;
 			orderItem.quantity = cart.quantity;
 			orderItem.productPrice = cart.product.price;
 
 			orderItem.hasLab = cart.hasLab;
-			orderItem.labPrice = cart.hasLab ? cart.product.lab.price : 0;
+
+			if (cart.hasLab) {
+				orderItem.labPrice = orderItem.product.lab.price;
+			} else {
+				orderItem.labPrice = 0;
+			}
 
 			orderItems.push(orderItem);
-		});
+		}
 		return orderItems;
 	}
 

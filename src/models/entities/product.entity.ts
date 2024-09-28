@@ -29,7 +29,10 @@ export class Product extends BaseEntity {
 	@Property()
 	price!: number;
 
-	@OneToOne(() => ProductLab)
+	@OneToOne(() => ProductLab, (productLab) => productLab.product, {
+		nullable: true,
+		owner: true
+	})
 	lab!: Rel<ProductLab>;
 
 	@Field(() => [ProductCategory])
@@ -80,7 +83,7 @@ export class ProductCategory extends BaseEntity {
 @ObjectType()
 @Entity()
 export class ProductLab extends BaseEntity {
-	@OneToOne(() => Product)
+	@OneToOne(() => Product, (product) => product.lab)
 	product!: Rel<Product>;
 
 	@Field()
