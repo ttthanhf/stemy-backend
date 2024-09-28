@@ -8,6 +8,16 @@ export class TicketService {
 	static async createTicket(ticket: Ticket) {
 		return ticketRepository.createAndSave(ticket);
 	}
+
+	static async getTicketById(ticketId: number) {
+		return ticketRepository.findOne({
+			id: ticketId
+		});
+	}
+
+	static async updateTicket(ticket: Ticket) {
+		return ticketRepository.save(ticket);
+	}
 }
 
 export class TicketCategoryService {
