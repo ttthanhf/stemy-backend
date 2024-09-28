@@ -29,11 +29,17 @@ export class OrderService {
 		order.status = OrderStatus.UNPAID;
 
 		orderItems.forEach((orderItem) => order.orderItems.add(orderItem));
-		order.totalPrice = orderItems.reduce(
-			(totalValue, currentValue) =>
-				totalValue + (currentValue.quantity + currentValue.unitPrice),
-			0
-		);
+		order.totalPrice = orderItems.reduce((totalValue, orderItem) => {
+			if (orderItem.hasLab) {
+				return (
+					totalValue +
+					(orderItem.quantity + orderItem.productPrice) +
+					orderItem.product.lab.price
+				);
+			} else {
+				return totalValue + (orderItem.quantity + orderItem.productPrice);
+			}
+		}, 0);
 
 		return orderRepository.createAndSave(order);
 	}
@@ -44,7 +50,10 @@ export class OrderService {
 			const orderItem = new OrderItem();
 			orderItem.product = cart.product;
 			orderItem.quantity = cart.quantity;
-			orderItem.unitPrice = cart.product.price;
+			orderItem.productPrice = cart.product.price;
+
+			orderItem.hasLab = cart.hasLab;
+			orderItem.labPrice = cart.hasLab ? cart.product.lab.price : 0;
 
 			orderItems.push(orderItem);
 		});

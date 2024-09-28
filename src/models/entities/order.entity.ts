@@ -68,5 +68,13 @@ export class OrderItem extends BaseEntity {
 
 	@Field(() => Int)
 	@Property()
-	unitPrice!: number;
+	productPrice!: number;
+
+	@Field()
+	@Property()
+	hasLab!: boolean;
+
+	@Field(() => Int)
+	@Property()
+	labPrice!: number;
 }

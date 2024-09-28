@@ -83,4 +83,17 @@ export class UserLabService {
 			}
 		);
 	}
+
+	static async isUserHasThisLabByProductId(userId: number, productId: number) {
+		const count = await userLabRepository.count({
+			user: { id: userId },
+			productLab: {
+				product: {
+					id: productId
+				}
+			}
+		});
+
+		return count > 0;
+	}
 }

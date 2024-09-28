@@ -6,7 +6,8 @@ import {
 	ManyToOne,
 	OneToMany,
 	OneToOne,
-	Property
+	Property,
+	Rel
 } from '@mikro-orm/core';
 import { BaseEntity } from './base.entity';
 import { Field, Int, ObjectType } from 'type-graphql';
@@ -27,6 +28,9 @@ export class Product extends BaseEntity {
 	@Field(() => Int)
 	@Property()
 	price!: number;
+
+	@OneToOne(() => ProductLab)
+	lab!: Rel<ProductLab>;
 
 	@Field(() => [ProductCategory])
 	@ManyToMany(
@@ -77,11 +81,15 @@ export class ProductCategory extends BaseEntity {
 @Entity()
 export class ProductLab extends BaseEntity {
 	@OneToOne(() => Product)
-	product!: Product;
+	product!: Rel<Product>;
 
 	@Field()
 	@Property()
 	url!: string;
+
+	@Field(() => Int)
+	@Property()
+	price!: number;
 }
 
 @ObjectType()

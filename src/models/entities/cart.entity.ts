@@ -18,4 +18,8 @@ export class Cart extends BaseEntity {
 	@Field(() => Int)
 	@Property()
 	quantity!: number;
+
+	@Field()
+	@Property()
+	hasLab!: boolean;
 }

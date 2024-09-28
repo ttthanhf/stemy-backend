@@ -29,7 +29,7 @@ export class OrderResolver {
 			throw new GraphQLError('Something error with this user');
 		}
 
-		const carts = await CartService.getCartsByCartIdsAndUserId(cartIds, userId);
+		const carts = await CartService.getCartsByIdsAndUserId(cartIds, userId);
 
 		const orderItems = OrderService.prepareOrderItem(carts);
 

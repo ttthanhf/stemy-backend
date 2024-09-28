@@ -3,6 +3,7 @@ import { Cart } from '~entities/cart.entity';
 import { Product } from '~entities/product.entity';
 import { User } from '~entities/user.entity';
 import cartRepository from '~repositories/cart.repository';
+import { UserLabService } from './user.service';
 
 export class CartService {
 	static async getCartsByUserId(userId: number) {
@@ -24,8 +25,13 @@ export class CartService {
 		});
 	}
 
-	static async getCartByProductId(productId: number, userId: number) {
+	static async getCartByProductIdAndHasLab(
+		productId: number,
+		userId: number,
+		hasLab: boolean
+	) {
 		return cartRepository.findOne({
+			hasLab: hasLab,
 			product: {
 				id: productId
 			},
@@ -38,9 +44,53 @@ export class CartService {
 	static async addProductToCart(
 		user: User,
 		product: Product,
-		quantity: number
+		quantity: number,
+		hasLab: boolean
 	) {
-		let cart = await this.getCartByProductId(product.id, user.id);
+		if (hasLab) {
+			if (quantity > 1) {
+				throw new GraphQLError(
+					'Only add 1 quantity for product included lab selected'
+				);
+			}
+
+			const isUserHasThisLab = await UserLabService.isUserHasThisLabByProductId(
+				user.id,
+				product.id
+			);
+			if (isUserHasThisLab) {
+				throw new GraphQLError('You already have this lab for this product');
+			}
+
+			const isProductHasLabInCart = await cartRepository.count({
+				hasLab: true,
+				user: {
+					id: user.id
+				},
+				product: {
+					id: product.id
+				}
+			});
+			if (isProductHasLabInCart > 0) {
+				throw new GraphQLError('This product has lab selected already in cart');
+			}
+
+			const cart = new Cart();
+			cart.product = product;
+			cart.user = user;
+			cart.quantity = quantity;
+			cart.hasLab = hasLab;
+
+			await cartRepository.createAndSave(cart);
+
+			return cart;
+		}
+
+		let cart = await this.getCartByProductIdAndHasLab(
+			product.id,
+			user.id,
+			false
+		);
 
 		if (cart) {
 			cart.quantity = cart.quantity + quantity;
@@ -59,6 +109,8 @@ export class CartService {
 			);
 		}
 
+		cart.hasLab = hasLab;
+
 		await cartRepository.save(cart);
 
 		return cart;
@@ -66,13 +118,17 @@ export class CartService {
 
 	static async updateProductInCart(
 		user: User,
-		product: Product,
+		cartId: number,
 		quantity: number
 	) {
-		const cart = await this.getCartByProductId(product.id, user.id);
+		const cart = await this.getCartByIdAndUserId(cartId, user.id);
 
 		if (!cart) {
 			throw new GraphQLError('Product not found in cart');
+		}
+
+		if (cart.hasLab) {
+			throw new GraphQLError('This cart cant update because it has lab');
 		}
 
 		cart.quantity = quantity;
@@ -82,17 +138,13 @@ export class CartService {
 		return cart;
 	}
 
-	static async deleteProductInCart(user: User, product: Product) {
-		const cart = await this.getCartByProductId(product.id, user.id);
+	static async deleteCarts(user: User, cartIds: [number]) {
+		const carts = await this.getCartsByIdsAndUserId(cartIds, user.id);
 
-		if (!cart) {
-			throw new GraphQLError('Product not found in cart');
-		}
-
-		return cartRepository.remove(cart);
+		return cartRepository.remove(carts);
 	}
 
-	static async getCartsByCartIdsAndUserId(cartIds: number[], userId: number) {
+	static async getCartsByIdsAndUserId(cartIds: number[], userId: number) {
 		return cartRepository.find({
 			id: {
 				$in: cartIds
@@ -100,6 +152,15 @@ export class CartService {
 			user: {
 				id: userId
 			}
+		});
+	}
+
+	static async getCartByIdAndUserId(cartId: number, userId: number) {
+		return cartRepository.findOne({
+			user: {
+				id: userId
+			},
+			id: cartId
 		});
 	}
 

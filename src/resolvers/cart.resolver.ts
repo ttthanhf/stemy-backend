@@ -1,5 +1,5 @@
 import { GraphQLError } from 'graphql';
-import { Arg, Ctx, Mutation, Query, UseMiddleware } from 'type-graphql';
+import { Arg, Ctx, Int, Mutation, Query, UseMiddleware } from 'type-graphql';
 import { Cart } from '~entities/cart.entity';
 import { AuthMiddleware } from '~middlewares/auth.middleware';
 import { CartService } from '~services/cart.service';
@@ -29,7 +29,8 @@ export class CartResolver {
 	async addToCart(
 		@Ctx() ctx: Context,
 		@Arg('productId') productId: number,
-		@Arg('quantity') quantity: number
+		@Arg('quantity') quantity: number,
+		@Arg('hasLab') hasLab: boolean
 	) {
 		if (quantity <= 0) {
 			throw new GraphQLError(
@@ -51,7 +52,12 @@ export class CartResolver {
 			throw new GraphQLError('Product not exist');
 		}
 
-		const cart = await CartService.addProductToCart(user, product, quantity);
+		const cart = await CartService.addProductToCart(
+			user,
+			product,
+			quantity,
+			hasLab
+		);
 
 		return cart;
 	}
@@ -59,7 +65,7 @@ export class CartResolver {
 	@Mutation(() => Cart)
 	async updateCart(
 		@Ctx() ctx: Context,
-		@Arg('productId') productId: number,
+		@Arg('cartId') cartId: number,
 		@Arg('quantity') quantity: number
 	) {
 		if (quantity <= 0) {
@@ -76,19 +82,16 @@ export class CartResolver {
 			throw new GraphQLError('Something wrong with this user');
 		}
 
-		const product = await ProductService.getProductById(productId);
-
-		if (!product) {
-			throw new GraphQLError('Product not exist');
-		}
-
-		const cart = await CartService.updateProductInCart(user, product, quantity);
+		const cart = await CartService.updateProductInCart(user, cartId, quantity);
 
 		return cart;
 	}
 
 	@Mutation(() => String)
-	async deleteCart(@Ctx() ctx: Context, @Arg('productId') productId: number) {
+	async deleteCarts(
+		@Ctx() ctx: Context,
+		@Arg('cartId', () => [Int]) cartIds: [number]
+	) {
 		const userId = ctx.res.model.data.user.id;
 
 		const user = await UserService.getUserById(userId);
@@ -97,13 +100,7 @@ export class CartResolver {
 			throw new GraphQLError('Something wrong with this user');
 		}
 
-		const product = await ProductService.getProductById(productId);
-
-		if (!product) {
-			throw new GraphQLError('Product not exist');
-		}
-
-		await CartService.deleteProductInCart(user, product);
+		await CartService.deleteCarts(user, cartIds);
 
 		return 'Success';
 	}
