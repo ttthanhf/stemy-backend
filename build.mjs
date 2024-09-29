@@ -107,29 +107,6 @@ function copyChangedFiles(changedFiles, srcDir, destDir) {
 	});
 }
 
-async function createHashFile() {
-	const newHashes = hashHandle(distDir);
-
-	const previousHashes = fs.existsSync(path.join(cacheDir, hashFileName))
-		? JSON.parse(fs.readFileSync(path.join(cacheDir, hashFileName), 'utf8'))
-		: {};
-
-	const changedFiles = compareHashes(newHashes, previousHashes);
-	if (!fs.existsSync(finalDistDir)) {
-		fs.mkdirSync(finalDistDir, { recursive: true });
-	}
-	copyChangedFiles(changedFiles, distDir, finalDistDir);
-
-	if (!fs.existsSync(cacheDir)) {
-		fs.mkdirSync(cacheDir, { recursive: true });
-	}
-	fs.writeFileSync(
-		path.join(cacheDir, hashFileName),
-		JSON.stringify(newHashes, null, 2),
-		'utf8'
-	);
-}
-
 function zipFolder(sourceDir, outputFile) {
 	return new Promise((resolve, reject) => {
 		const output = fs.createWriteStream(outputFile);
@@ -153,7 +130,64 @@ function zipFolder(sourceDir, outputFile) {
 	});
 }
 
-//================start===============
+//===========================================================================//
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function withConnectServer() {
+	// eslint-disable-next-line no-undef
+	const response = await fetch(
+		'https://stemyb.thanhf.dev/production/hash4build'
+	);
+	const result = await response.json();
+	if (result.errors) {
+		throw new Error(result.errors);
+	}
+
+	const newHashes = hashHandle(distDir);
+
+	const previousHashes = JSON.parse(result.data);
+
+	const changedFiles = compareHashes(newHashes, previousHashes);
+	if (!fs.existsSync(finalDistDir)) {
+		fs.mkdirSync(finalDistDir, { recursive: true });
+	}
+	copyChangedFiles(changedFiles, distDir, finalDistDir);
+
+	if (!fs.existsSync(cacheDir)) {
+		fs.mkdirSync(cacheDir, { recursive: true });
+	}
+	fs.writeFileSync(
+		path.join(cacheDir, hashFileName),
+		JSON.stringify(newHashes, null, 2),
+		'utf8'
+	);
+}
+
+//=============================================================//
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function withoutConnectServer() {
+	const newHashes = hashHandle(distDir);
+
+	const previousHashes = fs.existsSync(path.join(cacheDir, hashFileName))
+		? JSON.parse(fs.readFileSync(path.join(cacheDir, hashFileName), 'utf8'))
+		: {};
+
+	const changedFiles = compareHashes(newHashes, previousHashes);
+	if (!fs.existsSync(finalDistDir)) {
+		fs.mkdirSync(finalDistDir, { recursive: true });
+	}
+	copyChangedFiles(changedFiles, distDir, finalDistDir);
+
+	if (!fs.existsSync(cacheDir)) {
+		fs.mkdirSync(cacheDir, { recursive: true });
+	}
+	fs.writeFileSync(
+		path.join(cacheDir, hashFileName),
+		JSON.stringify(newHashes, null, 2),
+		'utf8'
+	);
+}
 
 minifyJsonFile('./package.json', path.join(distDir, 'package.json'));
 minifyJsonFile('./package-lock.json', path.join(distDir, 'package-lock.json'));
@@ -162,7 +196,8 @@ fs.copyFileSync('./.env', path.join(distDir, '.env'));
 
 await minifyHandle(buildDir);
 
-await createHashFile();
+// await withoutConnectServer();
+await withConnectServer();
 
 minifyJsonFile(
 	path.join(cacheDir, hashFileName),

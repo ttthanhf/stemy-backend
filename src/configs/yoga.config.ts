@@ -46,7 +46,7 @@ export const yogaConfig: YogaServerOptions<any, any> = {
 			onReject: [logReject]
 		}),
 		maxAliasesPlugin({
-			n: 2,
+			n: 6,
 			onReject: [logReject]
 		}),
 		maxDirectivesPlugin({
