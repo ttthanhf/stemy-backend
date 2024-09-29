@@ -40,6 +40,9 @@ export class OrderResolver {
 		}
 
 		const carts = await CartService.getCartsByIdsAndUserId(cartIds, userId);
+		if (carts.length <= 0) {
+			throw new GraphQLError('Cart not found');
+		}
 
 		const orderItems = await OrderService.prepareOrderItem(carts);
 

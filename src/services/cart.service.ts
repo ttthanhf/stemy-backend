@@ -145,14 +145,17 @@ export class CartService {
 	}
 
 	static async getCartsByIdsAndUserId(cartIds: number[], userId: number) {
-		return cartRepository.find({
-			id: {
-				$in: cartIds
+		return cartRepository.find(
+			{
+				id: {
+					$in: cartIds
+				},
+				user: {
+					id: userId
+				}
 			},
-			user: {
-				id: userId
-			}
-		});
+			{ populate: ['product'] }
+		);
 	}
 
 	static async getCartByIdAndUserId(cartId: number, userId: number) {
