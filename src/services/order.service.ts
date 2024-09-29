@@ -103,7 +103,7 @@ export class OrderService {
 			vnp_OrderType: 'other'
 		};
 
-		vnp_params = ObjectUtil.sortObject(vnp_params);
+		vnp_params = ObjectUtil.sortObjectVNPay(vnp_params);
 
 		const queryString = QueryString.stringify(vnp_params);
 		const hmac = createHmac('sha512', env.VNPAY_KEY);
@@ -145,7 +145,7 @@ export class OrderService {
 	}
 
 	static async checkOrderSecureHash(input: CheckoutOrderInput) {
-		const sorted_vnp_params = ObjectUtil.sortObject(input);
+		const sorted_vnp_params = ObjectUtil.sortObjectVNPay(input);
 		const vnp_params_clone = ObjectUtil.cloneObject(sorted_vnp_params, [
 			'vnp_SecureHash'
 		]);
