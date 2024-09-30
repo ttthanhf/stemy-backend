@@ -54,7 +54,7 @@ export const yogaConfig: YogaServerOptions<any, any> = {
 			onReject: [logReject]
 		}),
 		costLimitPlugin({
-			maxCost: 100,
+			maxCost: 200,
 			onReject: [logReject]
 		}),
 		maxTokensPlugin({

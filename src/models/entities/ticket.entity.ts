@@ -13,6 +13,7 @@ import { TicketStatus } from '~constants/ticket.constant';
 import { User } from './user.entity';
 import { BaseEntity } from './base.entity';
 import { OrderItem } from './order.entity';
+import { Role } from '~constants/role.constant';
 
 @ObjectType()
 @Entity()
@@ -41,6 +42,10 @@ export class Ticket extends BaseEntity {
 	@Property()
 	senderComment!: string;
 
+	@Field(() => [TicketImage])
+	@OneToMany(() => TicketImage, (ticketImage) => ticketImage.ticket)
+	images = new Collection<TicketImage>(this);
+
 	@Field(() => User, { nullable: true })
 	@OneToOne(() => User, { nullable: true })
 	replier!: User;
@@ -64,4 +69,17 @@ export class TicketCategory extends BaseEntity {
 	@Field(() => [Ticket])
 	@ManyToOne(() => Ticket)
 	tickets = new Collection<Ticket>(this);
+}
+
+export class TicketImage extends BaseEntity {
+	@ManyToOne(() => Ticket)
+	ticket!: Ticket;
+
+	@Field()
+	@Property()
+	url!: string;
+
+	@Field(() => Role)
+	@Enum(() => Role)
+	owner!: Role;
 }
