@@ -71,7 +71,10 @@ export class TicketCategory extends BaseEntity {
 	tickets = new Collection<Ticket>(this);
 }
 
+@ObjectType()
+@Entity()
 export class TicketImage extends BaseEntity {
+	@Field()
 	@ManyToOne(() => Ticket)
 	ticket!: Ticket;
 

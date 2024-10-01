@@ -33,14 +33,7 @@ export class OrderService {
 
 		orderItems.forEach((orderItem) => order.orderItems.add(orderItem));
 		const orderItemsWithLabPrices = orderItems.map((orderItem) => {
-			if (orderItem.hasLab) {
-				return (
-					orderItem.quantity * orderItem.productPrice +
-					orderItem.product.lab!.price
-				);
-			} else {
-				return orderItem.quantity * orderItem.productPrice;
-			}
+			return orderItem.quantity * orderItem.productPrice + orderItem.labPrice;
 		});
 		order.totalPrice = orderItemsWithLabPrices.reduce(
 			(totalValue, itemPrice) => {

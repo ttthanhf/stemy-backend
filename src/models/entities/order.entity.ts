@@ -6,7 +6,6 @@ import {
 	Enum,
 	ManyToOne,
 	OneToMany,
-	OneToOne,
 	Property,
 	Rel
 } from '@mikro-orm/core';
@@ -68,7 +67,7 @@ export class OrderItem extends BaseEntity {
 	order!: Order;
 
 	@Field(() => Product)
-	@OneToOne(() => Product)
+	@ManyToOne(() => Product)
 	product!: Product;
 
 	@Field(() => Int)

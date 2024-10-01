@@ -82,7 +82,7 @@ export class OrderResolver {
 		}
 		await ProductService.updateProducts(products);
 
-		return 'Success';
+		return true;
 	}
 
 	@UseMiddleware(AuthMiddleware.LoginRequire)
