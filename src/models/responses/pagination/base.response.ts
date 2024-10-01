@@ -16,12 +16,16 @@ export class PageInfo {
 	@Field(() => Int)
 	totalPage!: number;
 
-	constructor(totalItem?: number, pageInfoArgs?: PageInfoArgs) {
-		if (totalItem && pageInfoArgs) {
+	constructor(totalItem: number = 0, pageInfoArgs?: PageInfoArgs) {
+		if (pageInfoArgs) {
 			Object.assign(this, MapperUtil.mapObjectToClass(pageInfoArgs, PageInfo));
-			this.totalItem = totalItem;
-			this.totalPage = Math.ceil(totalItem / this.currentItem);
+		} else {
+			this.currentItem = 0;
+			this.currentPage = 0;
 		}
+		this.totalItem = totalItem;
+		this.totalPage =
+			totalItem > 0 ? Math.ceil(totalItem / this.currentItem) : 0;
 	}
 }
 
