@@ -9,6 +9,7 @@ import { buildSchema } from 'type-graphql';
 import { GlobalMiddleware } from '~middlewares/global.middleware';
 import { AuthResolver } from '~resolvers/auth.resolver';
 import { CartResolver } from '~resolvers/cart.resolver';
+import { FeedbackResolver } from '~resolvers/feedback.resolver';
 import { OrderResolver } from '~resolvers/order.resolver';
 import { ProductResolver } from '~resolvers/product.resolver';
 import { ProductCategoryResolver } from '~resolvers/productCategory.resolver';
@@ -32,7 +33,8 @@ export const yogaConfig: YogaServerOptions<any, any> = {
 			CartResolver,
 			OrderResolver,
 			ProductCategoryResolver,
-			TicketResolver
+			TicketResolver,
+			FeedbackResolver
 		],
 		globalMiddlewares: [GlobalMiddleware.ErrorInterceptor],
 		scalarsMap: [{ type: FileScalarType, scalar: FileScalar }]

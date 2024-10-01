@@ -3,18 +3,18 @@ import { BaseEntity } from './base.entity';
 import { User } from './user.entity';
 import { Product } from './product.entity';
 import { OrderItem } from './order.entity';
-import { Field, Int, ObjectType } from 'type-graphql';
+import { Field, Float, ObjectType } from 'type-graphql';
 
 @ObjectType()
 @Entity()
 export class Feedback extends BaseEntity {
-	@Field(() => Int)
+	@Field(() => Float)
 	@Property()
 	rating!: number;
 
 	@Field()
 	@Property()
-	comment!: string;
+	note!: string;
 
 	@Field(() => User)
 	@ManyToOne(() => User)

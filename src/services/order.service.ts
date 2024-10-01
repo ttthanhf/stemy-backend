@@ -208,13 +208,16 @@ export class OrderService {
 
 export class OrderItemService {
 	static async getOrderItemByIdAndUserId(id: number, userId: number) {
-		return orderItemRepository.findOne({
-			id,
-			order: {
-				user: {
-					id: userId
+		return orderItemRepository.findOne(
+			{
+				id,
+				order: {
+					user: {
+						id: userId
+					}
 				}
-			}
-		});
+			},
+			{ populate: ['product'] }
+		);
 	}
 }

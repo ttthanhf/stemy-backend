@@ -10,7 +10,7 @@ import {
 	Rel
 } from '@mikro-orm/core';
 import { BaseEntity } from './base.entity';
-import { Field, Int, ObjectType } from 'type-graphql';
+import { Field, Float, Int, ObjectType } from 'type-graphql';
 import { Feedback } from './feedback.entity';
 import { CategoryType } from '~constants/category.constant';
 
@@ -55,7 +55,7 @@ export class Product extends BaseEntity {
 	@Property({ default: 0 })
 	sold!: number;
 
-	@Field(() => Int)
+	@Field(() => Float)
 	@Property({ default: 0 })
 	rating!: number;
 }
@@ -75,7 +75,7 @@ export class ProductCategory extends BaseEntity {
 	@Property()
 	title!: string;
 
-	@Field(() => [CategoryType])
+	@Field(() => CategoryType)
 	@Enum(() => CategoryType)
 	type!: CategoryType;
 }
