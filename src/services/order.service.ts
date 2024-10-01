@@ -189,6 +189,21 @@ export class OrderService {
 			{ fields }
 		);
 	}
+
+	static async getOrderById(id: number) {
+		return orderRepository.findOne(
+			{
+				id
+			},
+			{
+				populate: ['orderItems', 'orderItems.product']
+			}
+		);
+	}
+
+	static async updateOrder(order: Order) {
+		return orderRepository.save(order);
+	}
 }
 
 export class OrderItemService {
