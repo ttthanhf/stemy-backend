@@ -217,7 +217,7 @@ export class OrderItemService {
 					}
 				}
 			},
-			{ populate: ['product'] }
+			{ populate: ['product', 'product.feedbacks'] }
 		);
 	}
 }

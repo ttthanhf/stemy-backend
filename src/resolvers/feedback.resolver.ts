@@ -41,8 +41,10 @@ export class FeedbackResolver {
 		const feedback = await FeedbackService.createFeedback(newFeedback);
 
 		const product = orderItem.product;
+		const feedbacksLength = product.feedbacks.length;
 		const newRating =
-			(product.rating * product.sold + rating) / (product.sold + 1);
+			(product.rating * feedbacksLength + rating) / (feedbacksLength + 1);
+
 		product.rating = parseFloat(newRating.toFixed(2));
 
 		await ProductService.updateProducts([product]);
