@@ -176,7 +176,7 @@ export class OrderService {
 						orderItems: {
 							product: {
 								name: {
-									$ilike: `%${search}%`
+									$like: `%${search}%`
 								}
 							}
 						}

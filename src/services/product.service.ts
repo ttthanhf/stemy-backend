@@ -14,17 +14,57 @@ import { MapperUtil } from '~utils/mapper.util';
 import { NumberUtil } from '~utils/number.util';
 import { PaginationUtil } from '~utils/pagination.util';
 import { UploadService } from './upload.service';
+import { FilterSearchProduct } from '~types/args/product.arg';
 
 export class ProductService {
 	static async getProductsPagination(
 		/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 		fields: any,
 		pageInfoArgs: PageInfoArgs,
-		sortOrderArgs: SortOrderArgs
+		sortOrderArgs: SortOrderArgs,
+		filterSearchArgs: FilterSearchProduct
 	) {
 		const pageResult = PaginationUtil.avoidTrashInput(pageInfoArgs);
+		const categoryIdsQuery =
+			filterSearchArgs.categoryIds.length > 0
+				? {
+						categories: {
+							id: {
+								$in: filterSearchArgs.categoryIds
+							}
+						}
+					}
+				: {};
+		const searchQuery =
+			filterSearchArgs.search.trim() != ''
+				? {
+						name: {
+							$like: `%${filterSearchArgs.search}%`
+						}
+					}
+				: {};
+		const ratingQuery =
+			filterSearchArgs.minRating != 0 && filterSearchArgs.maxRating != 5
+				? {
+						rating: {
+							$gte: filterSearchArgs.minRating,
+							$lte: filterSearchArgs.maxRating
+						}
+					}
+				: {};
+		const priceQuery = {
+			price: {
+				$gte: filterSearchArgs.minPrice,
+				$lte: filterSearchArgs.maxPrice
+			}
+		};
 		return productRepository.findAndCount(
-			{},
+			{
+				...searchQuery,
+				...categoryIdsQuery,
+				...ratingQuery,
+				...priceQuery
+			},
 			{
 				fields: fields,
 				...pageResult,

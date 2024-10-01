@@ -9,6 +9,7 @@ import {
 	ProductService
 } from '~services/product.service';
 import { PageInfoArgs, SortOrderArgs } from '~types/args/pagination.arg';
+import { FilterSearchProduct } from '~types/args/product.arg';
 import { ProductInput } from '~types/inputs/product.input';
 import { FileScalar, FileUpload } from '~types/scalars/file.scalar';
 import { ResolverUtil } from '~utils/resolver.util';
@@ -19,7 +20,8 @@ export class ProductResolver {
 	async products(
 		@Info() info: GraphQLResolveInfo,
 		@Args() pageInfoArgs: PageInfoArgs,
-		@Args() SortOrderArgs: SortOrderArgs
+		@Args() sortOrderArgs: SortOrderArgs,
+		@Args() filterSearchArgs: FilterSearchProduct
 	) {
 		const fields = ResolverUtil.getFields(
 			info.fieldNodes[0].selectionSet?.selections
@@ -28,7 +30,8 @@ export class ProductResolver {
 		const [products, totalItem] = await ProductService.getProductsPagination(
 			fields,
 			pageInfoArgs,
-			SortOrderArgs
+			sortOrderArgs,
+			filterSearchArgs
 		);
 
 		const pageInfo = new PageInfo(totalItem, pageInfoArgs);
