@@ -5,27 +5,23 @@ import { MapperUtil } from '~utils/mapper.util';
 @ObjectType()
 export class PageInfo {
 	@Field(() => Int)
-	currentItem!: number;
+	currentItem: number = 0;
 
 	@Field(() => Int)
-	totalItem!: number;
+	totalItem: number = 0;
 
 	@Field(() => Int)
-	currentPage!: number;
+	currentPage: number = 0;
 
 	@Field(() => Int)
-	totalPage!: number;
+	totalPage: number = 0;
 
-	constructor(totalItem: number = 0, pageInfoArgs?: PageInfoArgs) {
-		if (pageInfoArgs) {
+	constructor(totalItem?: number, pageInfoArgs?: PageInfoArgs) {
+		if (totalItem && pageInfoArgs) {
 			Object.assign(this, MapperUtil.mapObjectToClass(pageInfoArgs, PageInfo));
-		} else {
-			this.currentItem = 0;
-			this.currentPage = 0;
+			this.totalItem = totalItem;
+			this.totalPage = Math.ceil(totalItem / this.currentItem);
 		}
-		this.totalItem = totalItem;
-		this.totalPage =
-			totalItem > 0 ? Math.ceil(totalItem / this.currentItem) : 0;
 	}
 }
 
