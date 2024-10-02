@@ -63,7 +63,8 @@ export class ProductService {
 				...searchQuery,
 				...categoryIdsQuery,
 				...ratingQuery,
-				...priceQuery
+				...priceQuery,
+				isDelete: false
 			},
 			{
 				fields: fields,
@@ -91,21 +92,25 @@ export class ProductService {
 
 	/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 	static async getProductById(id: number, fields?: any) {
-		return productRepository.findOne({ id }, { fields });
+		return productRepository.findOne({ id, isDelete: false }, { fields });
 	}
 
 	static async updateProducts(products: Product[]) {
 		return await productRepository.save(products);
 	}
 
-	static async deleteProduct(id: number) {
+	static async softDeleteProduct(id: number) {
 		const product = await productRepository.findOne({ id });
 
 		if (!product) {
 			throw new GraphQLError('Product not found');
 		}
 
-		await productRepository.remove(product);
+		product.isDelete = true;
+		product.deletedAt = new Date();
+
+		await this.updateProducts([product]);
+
 		return product;
 	}
 }

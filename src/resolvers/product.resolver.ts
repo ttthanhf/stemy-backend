@@ -92,6 +92,6 @@ export class ProductResolver {
 
 	@Mutation(() => Product)
 	async deleteProduct(@Arg('id') id: number) {
-		return await ProductService.deleteProduct(id);
+		return await ProductService.softDeleteProduct(id);
 	}
 }

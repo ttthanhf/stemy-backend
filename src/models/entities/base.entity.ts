@@ -20,5 +20,8 @@ export abstract class BaseEntity {
 	readonly updatedAt!: Date;
 
 	@Property({ type: 'datetime', nullable: true })
-	readonly deletedAt!: Date;
+	deletedAt!: Date;
+
+	@Property({ default: false })
+	isDelete: boolean = false;
 }
