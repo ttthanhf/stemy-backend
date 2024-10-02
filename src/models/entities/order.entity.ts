@@ -46,6 +46,10 @@ export class Order extends BaseEntity {
 	@Property()
 	phone!: string;
 
+	@Field()
+	@Property()
+	fullName!: string;
+
 	@Field(() => OrderStatus)
 	@Enum(() => OrderStatus)
 	status!: OrderStatus;

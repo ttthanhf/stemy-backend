@@ -29,7 +29,8 @@ export class OrderResolver {
 		@Arg('cartIds', () => [Int]) cartIds: number[],
 		@Arg('phone') phone: string,
 		@Arg('address') address: string,
-		@Arg('paymentProvider') paymentProvider: PaymentProvider
+		@Arg('paymentProvider') paymentProvider: PaymentProvider,
+		@Arg('fullName') fullName: string
 	) {
 		const userId = ctx.res.model.data.user.id;
 
@@ -51,7 +52,8 @@ export class OrderResolver {
 			orderItems,
 			phone,
 			address,
-			paymentProvider
+			paymentProvider,
+			fullName
 		);
 
 		const VNPayUrl = OrderService.getVNPayURL(order);

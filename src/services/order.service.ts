@@ -22,12 +22,14 @@ export class OrderService {
 		orderItems: OrderItem[],
 		phone: string,
 		address: string,
-		paymentProvider: PaymentProvider
+		paymentProvider: PaymentProvider,
+		fullName: string
 	) {
 		const order = new Order();
 		order.user = user;
 		order.phone = phone;
 		order.address = address;
+		order.fullName = fullName;
 		order.payment.provider = paymentProvider;
 		order.status = OrderStatus.UNPAID;
 
