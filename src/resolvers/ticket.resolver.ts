@@ -148,11 +148,8 @@ export class TicketResolver {
 			pageInfoArgs,
 			sortOrderArgs
 		);
-		console.log('🚀 ~ TicketResolver ~ tickets:', tickets);
-		console.log('🚀 ~ TicketResolver ~ totalItem:', totalItem);
 
 		const pageInfo = new PageInfo(totalItem, pageInfoArgs);
-		console.log('🚀 ~ TicketResolver ~ pageInfo:', pageInfo);
 
 		return {
 			items: tickets,
