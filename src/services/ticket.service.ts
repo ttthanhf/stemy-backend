@@ -9,6 +9,8 @@ import { NumberUtil } from '~utils/number.util';
 import { UploadService } from './upload.service';
 import { env } from '~configs/env.config';
 import { Role } from '~constants/role.constant';
+import { PageInfoArgs, SortOrderArgs } from '~types/args/pagination.arg';
+import { PaginationUtil } from '~utils/pagination.util';
 
 export class TicketService {
 	static async createTicket(ticket: Ticket) {
@@ -24,10 +26,29 @@ export class TicketService {
 	static async updateTicket(ticket: Ticket) {
 		return ticketRepository.save(ticket);
 	}
+
+	static async getTicketsPagination(
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		fields: any,
+		pageInfoArgs: PageInfoArgs,
+		sortOrderArgs: SortOrderArgs
+	) {
+		const pageResult = PaginationUtil.avoidTrashInput(pageInfoArgs);
+		return ticketRepository.findAndCount(
+			{},
+			{
+				fields: fields,
+				...pageResult,
+				orderBy: {
+					[sortOrderArgs.sort]: sortOrderArgs.order
+				}
+			}
+		);
+	}
 }
 
 export class TicketCategoryService {
-	static async getTickerCategoryById(id: number) {
+	static async getTicketCategoryById(id: number) {
 		return ticketCategoryRepository.findOne({
 			id
 		});

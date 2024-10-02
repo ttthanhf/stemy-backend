@@ -5,16 +5,16 @@ import { MapperUtil } from '~utils/mapper.util';
 @ObjectType()
 export class PageInfo {
 	@Field(() => Int)
-	currentItem!: number;
+	currentItem: number = 0;
 
 	@Field(() => Int)
-	totalItem!: number;
+	totalItem: number = 0;
 
 	@Field(() => Int)
-	currentPage!: number;
+	currentPage: number = 0;
 
 	@Field(() => Int)
-	totalPage!: number;
+	totalPage: number = 0;
 
 	constructor(totalItem?: number, pageInfoArgs?: PageInfoArgs) {
 		if (totalItem && pageInfoArgs) {

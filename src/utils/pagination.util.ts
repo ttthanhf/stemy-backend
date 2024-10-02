@@ -5,7 +5,7 @@ export class PaginationUtil {
 		const currentPage = pageInfoArgs.currentPage - 1;
 		const currentItem = pageInfoArgs.currentItem;
 		const limit = currentItem <= 0 ? 1 : currentItem;
-		const offset = currentPage < 0 ? 0 : currentPage;
+		const offset = currentPage < 0 ? 0 : currentPage * currentItem;
 		return {
 			limit,
 			offset

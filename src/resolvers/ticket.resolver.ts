@@ -1,6 +1,8 @@
 import { RoleRequire } from 'decorators/auth.decorator';
-import { GraphQLError } from 'graphql';
-import { Arg, Ctx, Mutation } from 'type-graphql';
+import { GraphQLError, GraphQLResolveInfo } from 'graphql';
+import { PageInfo } from 'models/responses/pagination/base.response';
+import { TicketsWithPaginationResponse } from 'models/responses/pagination/ticket.response';
+import { Arg, Args, Ctx, Info, Mutation, Query } from 'type-graphql';
 import { Role } from '~constants/role.constant';
 import { TicketStatus } from '~constants/ticket.constant';
 import { Ticket } from '~entities/ticket.entity';
@@ -11,8 +13,10 @@ import {
 	TicketService
 } from '~services/ticket.service';
 import { UserService } from '~services/user.service';
+import { PageInfoArgs, SortOrderArgs } from '~types/args/pagination.arg';
 import { Context } from '~types/context.type';
 import { FileScalar, FileUpload } from '~types/scalars/file.scalar';
+import { ResolverUtil } from '~utils/resolver.util';
 
 export class TicketResolver {
 	@RoleRequire([Role.CUSTOMER])
@@ -46,7 +50,7 @@ export class TicketResolver {
 		}
 
 		const category =
-			await TicketCategoryService.getTickerCategoryById(categoryId);
+			await TicketCategoryService.getTicketCategoryById(categoryId);
 		if (!category) {
 			throw new GraphQLError('Category not found');
 		}
@@ -126,5 +130,30 @@ export class TicketResolver {
 		}
 
 		return ticket;
+	}
+
+	@RoleRequire([Role.MANAGER])
+	@Query(() => TicketsWithPaginationResponse)
+	async tickets(
+		@Info() info: GraphQLResolveInfo,
+		@Args() pageInfoArgs: PageInfoArgs,
+		@Args() sortOrderArgs: SortOrderArgs
+	) {
+		const fields = ResolverUtil.getFields(
+			info.fieldNodes[0].selectionSet?.selections
+		);
+
+		const [tickets, totalItem] = await TicketService.getTicketsPagination(
+			fields,
+			pageInfoArgs,
+			sortOrderArgs
+		);
+
+		const pageInfo = new PageInfo(totalItem, pageInfoArgs);
+
+		return {
+			items: tickets,
+			pageInfo: pageInfo
+		};
 	}
 }
