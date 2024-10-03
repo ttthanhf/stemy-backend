@@ -40,6 +40,10 @@ export class User extends BaseEntity {
 	@Property({ nullable: true })
 	password!: string;
 
+	@Field({ nullable: true })
+	@Property({ nullable: true })
+	avatar!: string;
+
 	@Field(() => Role)
 	@Enum(() => Role)
 	role: Role = Role.CUSTOMER;

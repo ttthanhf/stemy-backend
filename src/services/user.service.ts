@@ -7,6 +7,9 @@ import { env } from '~configs/env.config';
 import { DateTimeUtil } from '~utils/datetime.util';
 import { JWTUtil } from '~utils/jwt.util';
 import { UserArg } from '~types/args/user.arg';
+import { FileUpload } from '~types/scalars/file.scalar';
+import { NumberUtil } from '~utils/number.util';
+import { UploadService } from './upload.service';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 export class UserService {
@@ -53,6 +56,21 @@ export class UserService {
 				fields
 			}
 		);
+	}
+
+	static async uploadAvatar(user: User, image: FileUpload) {
+		const imageName =
+			'stemy-avatar-' +
+			user.id +
+			'-T-' +
+			String(Date.now()) +
+			'-' +
+			NumberUtil.getRandomNumberByLength(3) +
+			'.png';
+
+		await UploadService.uploadFile(imageName, image.blobParts[0]);
+
+		return env.S3_HOST + imageName;
 	}
 }
 
