@@ -1,4 +1,11 @@
-import { Entity, ManyToOne, Property, Rel } from '@mikro-orm/core';
+import {
+	Collection,
+	Entity,
+	ManyToOne,
+	OneToMany,
+	Property,
+	Rel
+} from '@mikro-orm/core';
 import { BaseEntity } from './base.entity';
 import { User } from './user.entity';
 import { Product } from './product.entity';
@@ -16,6 +23,10 @@ export class Feedback extends BaseEntity {
 	@Property()
 	note!: string;
 
+	@Field(() => [FeedbackImage], { nullable: true })
+	@OneToMany(() => FeedbackImage, (feedbackImage) => feedbackImage.feedback)
+	images = new Collection<FeedbackImage>(this);
+
 	@Field(() => User)
 	@ManyToOne(() => User)
 	user!: Rel<User>;
@@ -27,4 +38,15 @@ export class Feedback extends BaseEntity {
 	@Field(() => OrderItem)
 	@ManyToOne(() => OrderItem)
 	orderItem!: Rel<OrderItem>;
+}
+
+@ObjectType()
+@Entity()
+export class FeedbackImage extends BaseEntity {
+	@ManyToOne(() => Feedback)
+	feedback!: Feedback;
+
+	@Field()
+	@Property()
+	url!: string;
 }
