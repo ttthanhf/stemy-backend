@@ -19,8 +19,8 @@ export class Feedback extends BaseEntity {
 	@Property()
 	rating!: number;
 
-	@Field()
-	@Property()
+	@Field({ nullable: true })
+	@Property({ nullable: true })
 	note!: string;
 
 	@Field(() => [FeedbackImage], { nullable: true })

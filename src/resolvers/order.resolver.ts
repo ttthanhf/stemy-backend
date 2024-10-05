@@ -113,7 +113,8 @@ export class OrderResolver {
 	async searchOrder(
 		@Info() info: GraphQLResolveInfo,
 		@Ctx() ctx: Context,
-		@Arg('search') search: string
+		@Arg('search') search: string,
+		@Arg('status', { nullable: true }) status?: OrderStatus
 	) {
 		const userId = ctx.res.model.data.user.id;
 
@@ -121,6 +122,26 @@ export class OrderResolver {
 			info.fieldNodes[0].selectionSet?.selections
 		);
 
-		return await OrderService.getOrderBySearch(search, userId, fields);
+		const orders = await OrderService.getOrdersBySearch(
+			search,
+			userId,
+			fields,
+			status
+		);
+		const updatedOrderList: Order[] = [];
+		for await (const order of orders) {
+			//checking for order is expire for rating: current setting 1 min
+			if (order.isAllowRating) {
+				if (new Date().getTime() - order.shipTime.getTime() > 1000 * 60) {
+					order.isAllowRating = false;
+					updatedOrderList.push(order);
+				}
+			}
+		}
+		if (updatedOrderList.length > 0) {
+			await OrderService.updateOrders(updatedOrderList);
+		}
+
+		return orders;
 	}
 }

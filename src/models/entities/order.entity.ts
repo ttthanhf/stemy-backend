@@ -26,6 +26,10 @@ class OrderPaymentEmbeddable {
 	@Field()
 	@Enum(() => PaymentProvider)
 	provider!: PaymentProvider;
+
+	@Field()
+	@Property({ type: 'datetime', nullable: true })
+	time!: Date;
 }
 
 @ObjectType()
@@ -49,6 +53,14 @@ export class Order extends BaseEntity {
 	@Field()
 	@Property()
 	fullName!: string;
+
+	@Field()
+	@Property({ default: false })
+	isAllowRating!: boolean;
+
+	@Field()
+	@Property({ type: 'datetime', nullable: true })
+	shipTime!: Date;
 
 	@Field(() => OrderStatus)
 	@Enum(() => OrderStatus)

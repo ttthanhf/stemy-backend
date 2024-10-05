@@ -1,41 +1,41 @@
 import { GraphQLError } from 'graphql';
-import { Arg, Ctx, Int, Mutation, UseMiddleware } from 'type-graphql';
+import { Arg, Ctx, Mutation, UseMiddleware } from 'type-graphql';
+import { OrderStatus } from '~constants/order.constant';
 import { Feedback } from '~entities/feedback.entity';
 import { AuthMiddleware } from '~middlewares/auth.middleware';
 import {
 	FeedbackImageService,
 	FeedbackService
 } from '~services/feedback.service';
-import { OrderItemService } from '~services/order.service';
+import { OrderService } from '~services/order.service';
 import { ProductService } from '~services/product.service';
 import { UserService } from '~services/user.service';
 import { Context } from '~types/context.type';
-import { FileScalar, FileUpload } from '~types/scalars/file.scalar';
+import { CreateFeedbackInput } from '~types/inputs/feedback.input';
 
 export class FeedbackResolver {
 	@UseMiddleware([AuthMiddleware.LoginRequire])
-	@Mutation(() => Feedback)
+	@Mutation(() => Boolean)
 	async createFeedback(
 		@Ctx() ctx: Context,
-		@Arg('note') note: string,
-		@Arg('rating') rating: number,
-		@Arg('orderItemId', () => Int) orderItemId: number,
-		@Arg('images', () => [FileScalar], { nullable: true })
-		images?: FileUpload[]
+		@Arg('input', () => [CreateFeedbackInput]) input: CreateFeedbackInput[],
+		@Arg('orderId') orderId: number
 	) {
-		if (images) {
-			if (images.length > 5) {
-				throw new GraphQLError('Only upload a maximum of 5 images');
-			}
+		for (const item of input) {
+			if (item.images) {
+				if (item.images.length > 5) {
+					throw new GraphQLError('Only upload a maximum of 5 images');
+				}
 
-			images.forEach((image) => {
-				if (!image.type.startsWith('image/')) {
-					throw new GraphQLError(image.name + ' not a image');
-				}
-				if (image.blobParts[0].byteLength > 1000000) {
-					throw new GraphQLError(image.name + ' must not exceed 1MB');
-				}
-			});
+				item.images.forEach((image) => {
+					if (!image.type.startsWith('image/')) {
+						throw new GraphQLError(image.name + ' not a image');
+					}
+					if (image.blobParts[0].byteLength > 1000000) {
+						throw new GraphQLError(image.name + ' must not exceed 1MB');
+					}
+				});
+			}
 		}
 
 		const userId = ctx.res.model.data.user.id;
@@ -44,39 +44,55 @@ export class FeedbackResolver {
 			throw new GraphQLError('Something error with this user');
 		}
 
-		const orderItem = await OrderItemService.getOrderItemByIdAndUserId(
-			orderItemId,
-			userId
-		);
-		if (!orderItem) {
-			throw new GraphQLError('Order item not found');
+		const order = await OrderService.getOrderByIdAndUserId(orderId, userId);
+		if (!order) {
+			throw new GraphQLError('Order not found');
+		}
+		if (!order.isAllowRating) {
+			throw new GraphQLError('Order has expired for rating');
 		}
 
-		const newFeedback = new Feedback();
-		newFeedback.user = user;
-		newFeedback.rating = rating;
-		newFeedback.note = note;
-		newFeedback.orderItem = orderItem;
-		newFeedback.product = orderItem.product;
-
-		const feedback = await FeedbackService.createFeedback(newFeedback);
-
-		// Create image
-		if (images) {
-			for await (const image of images) {
-				await FeedbackImageService.createFeedbackImage(feedback, image);
+		for (const item of input) {
+			const newFeedback = new Feedback();
+			newFeedback.user = user;
+			newFeedback.rating = item.rating;
+			if (item.note) {
+				newFeedback.note = item.note;
 			}
+
+			const orderItem = order.orderItems.find(
+				(orderItem) => orderItem.id == item.orderItemId
+			);
+			if (!orderItem) {
+				throw new GraphQLError('OrderItem not in this order');
+			}
+
+			newFeedback.orderItem = orderItem;
+			newFeedback.product = orderItem.product;
+
+			const feedback = await FeedbackService.createFeedback(newFeedback);
+
+			const product = orderItem.product;
+			const feedbacksLength = product.feedbacks.length;
+			const newRating =
+				(product.rating * feedbacksLength + item.rating) /
+				(feedbacksLength + 1);
+
+			product.rating = parseFloat(newRating.toFixed(2));
+
+			// Create image
+			if (item.images) {
+				for await (const image of item.images) {
+					await FeedbackImageService.createFeedbackImage(feedback, image);
+				}
+			}
+
+			await ProductService.updateProducts([product]);
 		}
 
-		const product = orderItem.product;
-		const feedbacksLength = product.feedbacks.length;
-		const newRating =
-			(product.rating * feedbacksLength + rating) / (feedbacksLength + 1);
+		order.status = OrderStatus.RATED;
+		await OrderService.updateOrder(order);
 
-		product.rating = parseFloat(newRating.toFixed(2));
-
-		await ProductService.updateProducts([product]);
-
-		return feedback;
+		return true;
 	}
 }

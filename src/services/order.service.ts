@@ -6,10 +6,7 @@ import { PaymentProvider } from '~constants/payment.constant';
 import { Cart } from '~entities/cart.entity';
 import { Order, OrderItem } from '~entities/order.entity';
 import { User } from '~entities/user.entity';
-import {
-	orderItemRepository,
-	orderRepository
-} from '~repositories/order.repository';
+import { orderRepository } from '~repositories/order.repository';
 import { CheckoutOrderInput } from '~types/inputs/order.input';
 import { DateTimeUtil } from '~utils/datetime.util';
 import { NumberUtil } from '~utils/number.util';
@@ -133,6 +130,7 @@ export class OrderService {
 		}
 
 		order.status = OrderStatus.PAID;
+		order.payment.time = new Date();
 
 		await orderRepository.save(order);
 
@@ -167,8 +165,20 @@ export class OrderService {
 		});
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	static async getOrderBySearch(search: string, userId: number, fields: any) {
+	static async getOrdersBySearch(
+		search: string,
+		userId: number,
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		fields: any,
+		status?: OrderStatus
+	) {
+		const statusQuery =
+			status != null
+				? {
+						status: status
+					}
+				: {};
+
 		const parsedSearch = parseInt(search, 10);
 		return orderRepository.find(
 			{
@@ -186,7 +196,8 @@ export class OrderService {
 				],
 				user: {
 					id: userId
-				}
+				},
+				...statusQuery
 			},
 			{ fields, populate: ['*'] }
 		);
@@ -206,20 +217,8 @@ export class OrderService {
 	static async updateOrder(order: Order) {
 		return orderRepository.save(order);
 	}
-}
 
-export class OrderItemService {
-	static async getOrderItemByIdAndUserId(id: number, userId: number) {
-		return orderItemRepository.findOne(
-			{
-				id,
-				order: {
-					user: {
-						id: userId
-					}
-				}
-			},
-			{ populate: ['product', 'product.feedbacks'] }
-		);
+	static async updateOrders(orders: Order[]) {
+		return orderRepository.save(orders);
 	}
 }
