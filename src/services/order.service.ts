@@ -188,7 +188,7 @@ export class OrderService {
 					id: userId
 				}
 			},
-			{ fields }
+			{ fields, populate: ['*'] }
 		);
 	}
 

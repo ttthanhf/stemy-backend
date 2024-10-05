@@ -43,12 +43,12 @@ export const yogaConfig: YogaServerOptions<any, any> = {
 	plugins: [
 		useExecutionCancellation(),
 		maxDepthPlugin({
-			n: 4,
+			n: 10,
 			propagateOnRejection: true,
 			onReject: [logReject]
 		}),
 		maxAliasesPlugin({
-			n: 6,
+			n: 10,
 			onReject: [logReject]
 		}),
 		maxDirectivesPlugin({
@@ -56,11 +56,11 @@ export const yogaConfig: YogaServerOptions<any, any> = {
 			onReject: [logReject]
 		}),
 		costLimitPlugin({
-			maxCost: 200,
+			maxCost: 500,
 			onReject: [logReject]
 		}),
 		maxTokensPlugin({
-			n: 500,
+			n: 1000,
 			onReject: [logReject]
 		})
 	],
