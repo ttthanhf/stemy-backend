@@ -19,7 +19,7 @@ import { PaymentProvider } from '~constants/payment.constant';
 @ObjectType()
 @Embeddable()
 class OrderPaymentEmbeddable {
-	@Field()
+	@Field({ nullable: true })
 	@Property({ nullable: true })
 	id!: string;
 
@@ -27,7 +27,7 @@ class OrderPaymentEmbeddable {
 	@Enum(() => PaymentProvider)
 	provider!: PaymentProvider;
 
-	@Field()
+	@Field({ nullable: true })
 	@Property({ type: 'datetime', nullable: true })
 	time!: Date;
 }
@@ -58,7 +58,7 @@ export class Order extends BaseEntity {
 	@Property({ default: false })
 	isAllowRating!: boolean;
 
-	@Field()
+	@Field({ nullable: true })
 	@Property({ type: 'datetime', nullable: true })
 	shipTime!: Date;
 

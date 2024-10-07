@@ -10,6 +10,7 @@ import {
 } from 'type-graphql';
 import { OrderStatus } from '~constants/order.constant';
 import { PaymentProvider } from '~constants/payment.constant';
+import { Cart } from '~entities/cart.entity';
 import { Order } from '~entities/order.entity';
 import { Product } from '~entities/product.entity';
 import { AuthMiddleware } from '~middlewares/auth.middleware';
@@ -143,5 +144,33 @@ export class OrderResolver {
 		}
 
 		return orders;
+	}
+
+	@UseMiddleware(AuthMiddleware.LoginRequire)
+	@Mutation(() => [Cart])
+	async reOrder(@Ctx() ctx: Context, @Arg('orderId') orderId: number) {
+		const userId = ctx.res.model.data.user.id;
+		const user = await UserService.getUserById(userId);
+		if (!user) {
+			throw new GraphQLError('Something error with this user');
+		}
+
+		const order = await OrderService.getOrderByIdAndUserId(orderId, userId);
+		if (!order) {
+			throw new GraphQLError('Order not found');
+		}
+
+		const carts: Cart[] = [];
+		for await (const orderItem of order.orderItems) {
+			const cart = await CartService.addProductToCart(
+				user,
+				orderItem.product,
+				orderItem.quantity,
+				orderItem.hasLab
+			);
+			carts.push(cart);
+		}
+
+		return carts;
 	}
 }

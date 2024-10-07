@@ -157,12 +157,21 @@ export class OrderService {
 	}
 
 	static async getOrderByIdAndUserId(orderId: number, userId: number) {
-		return orderRepository.findOne({
-			id: orderId,
-			user: {
-				id: userId
+		return orderRepository.findOne(
+			{
+				id: orderId,
+				user: {
+					id: userId
+				}
+			},
+			{
+				populate: [
+					'orderItems',
+					'orderItems.product',
+					'orderItems.product.images'
+				]
 			}
-		});
+		);
 	}
 
 	static async getOrdersBySearch(

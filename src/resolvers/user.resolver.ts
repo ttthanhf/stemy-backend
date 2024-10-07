@@ -9,12 +9,12 @@ import {
 	Resolver,
 	UseMiddleware
 } from 'type-graphql';
-import { User } from '~entities/user.entity';
+import { User, UserLab } from '~entities/user.entity';
 import { ResolverUtil } from '~utils/resolver.util';
 import { UpdateUserArg, UserArg } from '~types/args/user.arg';
 import { Context } from '~types/context.type';
 import { AuthMiddleware } from '~middlewares/auth.middleware';
-import { UserService } from '~services/user.service';
+import { UserLabService, UserService } from '~services/user.service';
 import { RoleRequire } from 'decorators/auth.decorator';
 import { Role } from '~constants/role.constant';
 import { FileScalar, FileUpload } from '~types/scalars/file.scalar';
@@ -66,6 +66,7 @@ export class UserResolver {
 		user.phone = updateUserArg.phone || user.phone;
 		user.email = updateUserArg.email || user.email;
 		user.fullName = updateUserArg.fullName || user.fullName;
+		user.address = updateUserArg.address || user.address;
 
 		await UserService.updateUser(user);
 
@@ -99,5 +100,22 @@ export class UserResolver {
 		await UserService.updateUser(user);
 
 		return user;
+	}
+
+	@UseMiddleware(AuthMiddleware.LoginRequire)
+	@Query(() => [UserLab])
+	async userLabs(@Ctx() ctx: Context, @Info() info: GraphQLResolveInfo) {
+		const fields = ResolverUtil.getNodes(
+			info.fieldNodes[0].selectionSet?.selections
+		);
+
+		const userId = ctx.res.model.data.user.id;
+		const user = await UserService.getUserById(userId);
+		if (!user) {
+			throw new GraphQLError('Something error with this user');
+		}
+
+		const userLabs = await UserLabService.getUserLabsByUserId(user.id, fields);
+		return userLabs;
 	}
 }

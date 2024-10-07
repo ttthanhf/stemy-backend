@@ -16,4 +16,7 @@ export class UpdateUserArg {
 
 	@Field({ nullable: true })
 	fullName?: string;
+
+	@Field({ nullable: true })
+	address?: string;
 }

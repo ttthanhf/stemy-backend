@@ -114,4 +114,17 @@ export class UserLabService {
 
 		return count > 0;
 	}
+
+	static async getUserLabsByUserId(userId: number, fields: any) {
+		return userLabRepository.find(
+			{
+				user: {
+					id: userId
+				}
+			},
+			{
+				fields
+			}
+		);
+	}
 }

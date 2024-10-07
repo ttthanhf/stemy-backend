@@ -84,17 +84,22 @@ export class User extends BaseEntity {
 	}
 }
 
+@ObjectType()
 @Entity()
 export class UserLab extends BaseEntity {
+	@Field(() => User)
 	@ManyToOne(() => User)
 	user!: User;
 
+	@Field(() => ProductLab)
 	@ManyToOne(() => ProductLab)
 	productLab!: ProductLab;
 
+	@Field(() => OrderItem)
 	@ManyToOne(() => OrderItem)
 	orderItem!: OrderItem;
 
+	@Field(() => Boolean)
 	@Property()
 	isActive!: boolean;
 }
