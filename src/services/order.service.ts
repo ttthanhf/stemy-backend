@@ -6,7 +6,10 @@ import { PaymentProvider } from '~constants/payment.constant';
 import { Cart } from '~entities/cart.entity';
 import { Order, OrderItem } from '~entities/order.entity';
 import { User } from '~entities/user.entity';
-import { orderRepository } from '~repositories/order.repository';
+import {
+	orderItemRepository,
+	orderRepository
+} from '~repositories/order.repository';
 import { CheckoutOrderInput } from '~types/inputs/order.input';
 import { DateTimeUtil } from '~utils/datetime.util';
 import { NumberUtil } from '~utils/number.util';
@@ -229,5 +232,21 @@ export class OrderService {
 
 	static async updateOrders(orders: Order[]) {
 		return orderRepository.save(orders);
+	}
+}
+
+export class OrderItemService {
+	static async getOrderItemByIdAndUserId(id: number, userId: number) {
+		return orderItemRepository.findOne(
+			{
+				id,
+				order: {
+					user: {
+						id: userId
+					}
+				}
+			},
+			{ populate: ['product', 'product.feedbacks'] }
+		);
 	}
 }
