@@ -8,7 +8,7 @@ import {
 	Property,
 	Rel
 } from '@mikro-orm/core';
-import { Field, ObjectType } from 'type-graphql';
+import { Field, Float, ObjectType } from 'type-graphql';
 import { TicketStatus } from '~constants/ticket.constant';
 import { User } from './user.entity';
 import { BaseEntity } from './base.entity';
@@ -21,6 +21,10 @@ export class Ticket extends BaseEntity {
 	@Field()
 	@Property()
 	title!: string;
+
+	@Field(() => Float, { nullable: true })
+	@Property({ type: 'float', nullable: true })
+	rating!: number;
 
 	@Field(() => TicketCategory)
 	@OneToMany(() => TicketCategory, (ticketCategory) => ticketCategory.tickets)

@@ -23,6 +23,15 @@ export class TicketService {
 		});
 	}
 
+	static async getTicketByIdAndSenderId(ticketId: number, senderId: number) {
+		return ticketRepository.findOne({
+			id: ticketId,
+			sender: {
+				id: senderId
+			}
+		});
+	}
+
 	static async updateTicket(ticket: Ticket) {
 		return ticketRepository.save(ticket);
 	}

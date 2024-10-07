@@ -2,10 +2,19 @@ import { RoleRequire } from 'decorators/auth.decorator';
 import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 import { PageInfo } from 'models/responses/pagination/base.response';
 import { TicketsWithPaginationResponse } from 'models/responses/pagination/ticket.response';
-import { Arg, Args, Ctx, Info, Mutation, Query } from 'type-graphql';
+import {
+	Arg,
+	Args,
+	Ctx,
+	Info,
+	Mutation,
+	Query,
+	UseMiddleware
+} from 'type-graphql';
 import { Role } from '~constants/role.constant';
 import { TicketStatus } from '~constants/ticket.constant';
 import { Ticket } from '~entities/ticket.entity';
+import { AuthMiddleware } from '~middlewares/auth.middleware';
 import { OrderItemService } from '~services/order.service';
 import {
 	TicketCategoryService,
@@ -155,5 +164,31 @@ export class TicketResolver {
 			items: tickets,
 			pageInfo: pageInfo
 		};
+	}
+
+	@UseMiddleware([AuthMiddleware.LoginRequire])
+	@Mutation(() => Ticket)
+	async ratingTicket(
+		@Ctx() ctx: Context,
+		@Arg('ticketId') ticketId: number,
+		@Arg('rating') rating: number
+	) {
+		const userId = ctx.res.model.data.user.id;
+
+		const ticket = await TicketService.getTicketByIdAndSenderId(
+			ticketId,
+			userId
+		);
+		if (!ticket) {
+			throw new GraphQLError('Ticket not found');
+		}
+		if (ticket.status != TicketStatus.CLOSE) {
+			throw new GraphQLError('Tickets have not yet been resolved for rating');
+		}
+
+		ticket.rating = rating;
+		await TicketService.updateTicket(ticket);
+
+		return Ticket;
 	}
 }
