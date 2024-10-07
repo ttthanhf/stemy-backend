@@ -233,6 +233,14 @@ export class OrderService {
 	static async updateOrders(orders: Order[]) {
 		return orderRepository.save(orders);
 	}
+
+	static async getOrdersByUserId(userId: number) {
+		return orderRepository.find({
+			user: {
+				id: userId
+			}
+		});
+	}
 }
 
 export class OrderItemService {

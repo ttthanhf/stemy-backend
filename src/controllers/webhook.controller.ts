@@ -37,7 +37,7 @@ export class WebHookController {
 
 		order.status = OrderStatus.DELIVERED;
 		order.shipTime = new Date();
-		order.isAllowRating = true;
+
 		await OrderService.updateOrder(order);
 
 		const products: Product[] = [];

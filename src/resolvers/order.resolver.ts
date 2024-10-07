@@ -1,4 +1,5 @@
 import { GraphQLError, GraphQLResolveInfo } from 'graphql';
+import { CountOrderResponse } from 'models/responses/order.model';
 import {
 	Arg,
 	Ctx,
@@ -133,8 +134,18 @@ export class OrderResolver {
 		for await (const order of orders) {
 			//checking for order is expire for rating: current setting 1 min
 			if (order.isAllowRating) {
-				if (new Date().getTime() - order.shipTime.getTime() > 1000 * 60) {
+				if (new Date().getTime() - order.receiveTime.getTime() > 1000 * 60) {
 					order.isAllowRating = false;
+					updatedOrderList.push(order);
+				}
+			}
+
+			if (!order.receiveTime) {
+				if (new Date().getTime() - order.shipTime.getTime() > 1000 * 60) {
+					order.status = OrderStatus.RECEIVED;
+					order.isAllowRating = true;
+					order.receiveTime = new Date();
+
 					updatedOrderList.push(order);
 				}
 			}
@@ -172,5 +183,65 @@ export class OrderResolver {
 		}
 
 		return carts;
+	}
+
+	@UseMiddleware(AuthMiddleware.LoginRequire)
+	@Mutation(() => Order)
+	async receiveOrder(@Ctx() ctx: Context, @Arg('orderId') orderId: number) {
+		const userId = ctx.res.model.data.user.id;
+		const user = await UserService.getUserById(userId);
+		if (!user) {
+			throw new GraphQLError('Something error with this user');
+		}
+
+		const order = await OrderService.getOrderByIdAndUserId(orderId, userId);
+		if (!order) {
+			throw new GraphQLError('Order not found');
+		}
+		if (order.status != OrderStatus.DELIVERED) {
+			throw new GraphQLError('Order status must be delivered');
+		}
+
+		order.status = OrderStatus.RECEIVED;
+		order.isAllowRating = true;
+		order.receiveTime = new Date();
+
+		await OrderService.updateOrder(order);
+
+		return order;
+	}
+
+	@UseMiddleware(AuthMiddleware.LoginRequire)
+	@Query(() => CountOrderResponse)
+	async countOrder(@Ctx() ctx: Context) {
+		const userId = ctx.res.model.data.user.id;
+		const user = await UserService.getUserById(userId);
+		if (!user) {
+			throw new GraphQLError('Something error with this user');
+		}
+
+		const orders = await OrderService.getOrdersByUserId(userId);
+		const countOrder = (
+			[
+				'delivering',
+				'delivered',
+				'received',
+				'unpaid',
+				'paid',
+				'rated'
+			] as OrderStatus[]
+		).reduce(
+			(acc, status) => {
+				acc[status] = 0; // Gán mặc định 0 cho mỗi trạng thái
+				return acc;
+			},
+			{} as Record<OrderStatus, number>
+		);
+
+		for (const order of orders) {
+			countOrder[order.status]++;
+		}
+
+		return countOrder;
 	}
 }

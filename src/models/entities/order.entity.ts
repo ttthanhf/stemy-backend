@@ -62,6 +62,10 @@ export class Order extends BaseEntity {
 	@Property({ type: 'datetime', nullable: true })
 	shipTime!: Date;
 
+	@Field({ nullable: true })
+	@Property({ type: 'datetime', nullable: true })
+	receiveTime!: Date;
+
 	@Field(() => OrderStatus)
 	@Enum(() => OrderStatus)
 	status!: OrderStatus;
