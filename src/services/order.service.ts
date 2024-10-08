@@ -58,7 +58,7 @@ export class OrderService {
 			orderItem.hasLab = cart.hasLab;
 
 			if (cart.hasLab) {
-				orderItem.labPrice = orderItem.product.lab!.price;
+				orderItem.labPrice = cart.product.lab!.price;
 			} else {
 				orderItem.labPrice = 0;
 			}
@@ -180,8 +180,6 @@ export class OrderService {
 	static async getOrdersBySearch(
 		search: string,
 		userId: number,
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		fields: any,
 		status?: OrderStatus
 	) {
 		const statusQuery =
@@ -211,7 +209,14 @@ export class OrderService {
 				},
 				...statusQuery
 			},
-			{ fields, populate: ['*'] }
+			{
+				populate: [
+					'orderItems',
+					'orderItems.product',
+					'orderItems.product.lab',
+					'orderItems.product.images'
+				]
+			}
 		);
 	}
 

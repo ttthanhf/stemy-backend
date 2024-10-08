@@ -23,6 +23,41 @@ export class TicketService {
 		});
 	}
 
+	static async getTicketsByUserId(userId: number) {
+		return ticketRepository.find({
+			$or: [
+				{
+					sender: {
+						id: userId
+					}
+				},
+				{
+					replier: {
+						id: userId
+					}
+				}
+			]
+		});
+	}
+
+	static async getTicketByIdAndUserId(ticketId: number, userId: number) {
+		return ticketRepository.findOne({
+			id: ticketId,
+			$or: [
+				{
+					sender: {
+						id: userId
+					}
+				},
+				{
+					replier: {
+						id: userId
+					}
+				}
+			]
+		});
+	}
+
 	static async getTicketByIdAndSenderId(ticketId: number, senderId: number) {
 		return ticketRepository.findOne({
 			id: ticketId,
@@ -52,6 +87,23 @@ export class TicketService {
 					[sortOrderArgs.sort]: sortOrderArgs.order
 				}
 			}
+		);
+	}
+
+	static async getTicketsBySenderIdAndOrderItemId(
+		senderId: number,
+		orderItemId: number
+	) {
+		return ticketRepository.find(
+			{
+				sender: {
+					id: senderId
+				},
+				orderItem: {
+					id: orderItemId
+				}
+			},
+			{ populate: ['replier'] }
 		);
 	}
 }

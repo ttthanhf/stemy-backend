@@ -6,7 +6,8 @@ export enum OrderStatus {
 	RECEIVED = 'received',
 	UNPAID = 'unpaid',
 	PAID = 'paid',
-	RATED = 'rated'
+	RATED = 'rated',
+	UNRATED = 'unrated'
 }
 
 registerEnumType(OrderStatus, {

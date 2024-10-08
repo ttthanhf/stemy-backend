@@ -1,14 +1,6 @@
-import { GraphQLError, GraphQLResolveInfo } from 'graphql';
+import { GraphQLError } from 'graphql';
 import { CountOrderResponse } from 'models/responses/order.model';
-import {
-	Arg,
-	Ctx,
-	Info,
-	Int,
-	Mutation,
-	Query,
-	UseMiddleware
-} from 'type-graphql';
+import { Arg, Ctx, Int, Mutation, Query, UseMiddleware } from 'type-graphql';
 import { OrderStatus } from '~constants/order.constant';
 import { PaymentProvider } from '~constants/payment.constant';
 import { Cart } from '~entities/cart.entity';
@@ -21,7 +13,6 @@ import { ProductService } from '~services/product.service';
 import { UserService } from '~services/user.service';
 import { Context } from '~types/context.type';
 import { CheckoutOrderInput } from '~types/inputs/order.input';
-import { ResolverUtil } from '~utils/resolver.util';
 
 export class OrderResolver {
 	@UseMiddleware(AuthMiddleware.LoginRequire)
@@ -113,39 +104,32 @@ export class OrderResolver {
 	@UseMiddleware(AuthMiddleware.LoginRequire)
 	@Query(() => [Order])
 	async searchOrder(
-		@Info() info: GraphQLResolveInfo,
 		@Ctx() ctx: Context,
 		@Arg('search') search: string,
 		@Arg('status', { nullable: true }) status?: OrderStatus
 	) {
 		const userId = ctx.res.model.data.user.id;
 
-		const fields = ResolverUtil.getNodes(
-			info.fieldNodes[0].selectionSet?.selections
-		);
-
-		const orders = await OrderService.getOrdersBySearch(
-			search,
-			userId,
-			fields,
-			status
-		);
+		const orders = await OrderService.getOrdersBySearch(search, userId, status);
 		const updatedOrderList: Order[] = [];
 		for await (const order of orders) {
-			//checking for order is expire for rating: current setting 1 min
-			if (order.isAllowRating) {
-				if (new Date().getTime() - order.receiveTime.getTime() > 1000 * 60) {
-					order.isAllowRating = false;
+			// Auto change status to received: current setting 5 min
+			if (order.status == OrderStatus.DELIVERED) {
+				if (new Date().getTime() - order.shipTime.getTime() > 1000 * 60 * 5) {
+					order.status = OrderStatus.RECEIVED;
+					order.receiveTime = new Date();
+
 					updatedOrderList.push(order);
 				}
 			}
 
-			if (!order.receiveTime) {
-				if (new Date().getTime() - order.shipTime.getTime() > 1000 * 60) {
-					order.status = OrderStatus.RECEIVED;
-					order.isAllowRating = true;
-					order.receiveTime = new Date();
-
+			//checking for order is expire for rating: current setting 5 min
+			else if (order.status == OrderStatus.RECEIVED) {
+				if (
+					new Date().getTime() - order.receiveTime.getTime() >
+					1000 * 60 * 5
+				) {
+					order.status = OrderStatus.UNRATED;
 					updatedOrderList.push(order);
 				}
 			}
@@ -203,7 +187,6 @@ export class OrderResolver {
 		}
 
 		order.status = OrderStatus.RECEIVED;
-		order.isAllowRating = true;
 		order.receiveTime = new Date();
 
 		await OrderService.updateOrder(order);

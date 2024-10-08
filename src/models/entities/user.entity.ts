@@ -62,6 +62,14 @@ export class User extends BaseEntity {
 	@Property({ nullable: true })
 	address!: string;
 
+	@Field()
+	@Property({ type: 'float', default: 0 })
+	rating!: number;
+
+	@Field()
+	@Property({ default: 0 })
+	numberOfOpenTicket!: number;
+
 	@BeforeCreate()
 	async encryptPassword() {
 		if (this.password) {

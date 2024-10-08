@@ -14,6 +14,7 @@ import {
 import { Role } from '~constants/role.constant';
 import { TicketStatus } from '~constants/ticket.constant';
 import { Ticket } from '~entities/ticket.entity';
+import { User } from '~entities/user.entity';
 import { AuthMiddleware } from '~middlewares/auth.middleware';
 import { OrderItemService } from '~services/order.service';
 import {
@@ -29,7 +30,7 @@ import { ResolverUtil } from '~utils/resolver.util';
 
 export class TicketResolver {
 	@RoleRequire([Role.CUSTOMER])
-	@Mutation(() => Ticket)
+	@Mutation(() => Boolean)
 	async createTicket(
 		@Ctx() ctx: Context,
 		@Arg('comment') comment: string,
@@ -69,7 +70,15 @@ export class TicketResolver {
 			userId
 		);
 		if (!orderItem) {
-			throw new GraphQLError('Order not found');
+			throw new GraphQLError('Order item not found');
+		}
+
+		const oldTickets = await TicketService.getTicketsBySenderIdAndOrderItemId(
+			userId,
+			orderItemId
+		);
+		if (oldTickets.length > 3) {
+			throw new GraphQLError('Maximum of this ticket for order item is 3');
 		}
 
 		const newTicket = new Ticket();
@@ -78,6 +87,34 @@ export class TicketResolver {
 		newTicket.orderItem = orderItem;
 		newTicket.senderComment = comment;
 		newTicket.title = title;
+
+		//=============Assign Ticket For Staff Start=============\\
+		async function getNewStaff(excludeStaffId: number = 0) {
+			const staffs = await UserService.getNewStaffs(excludeStaffId);
+			const worklessStaff = staffs.reduce((min, item) =>
+				item.numberOfOpenTicket < min.numberOfOpenTicket ? item : min
+			);
+			return worklessStaff;
+		}
+
+		let replier: User;
+
+		if (oldTickets.length == 0) {
+			replier = await getNewStaff();
+		} else {
+			const previousTicket = oldTickets[oldTickets.length - 1];
+			if (previousTicket.rating < 3) {
+				replier = await getNewStaff(previousTicket.replier.id);
+			} else {
+				replier = previousTicket.replier;
+			}
+		}
+
+		newTicket.replier = replier;
+
+		replier.numberOfOpenTicket = replier.numberOfOpenTicket + 1;
+		await UserService.updateUser(replier);
+		//=============Assign Ticket For Staff End=========\\
 
 		const ticket = await TicketService.createTicket(newTicket);
 
@@ -132,6 +169,9 @@ export class TicketResolver {
 		ticket.status = TicketStatus.CLOSE;
 
 		await TicketService.updateTicket(ticket);
+
+		user.numberOfOpenTicket = user.numberOfOpenTicket - 1;
+		await UserService.updateUser(user);
 
 		//create image
 		for await (const image of images) {
@@ -190,5 +230,25 @@ export class TicketResolver {
 		await TicketService.updateTicket(ticket);
 
 		return Ticket;
+	}
+
+	@UseMiddleware([AuthMiddleware.LoginRequire])
+	@Query(() => Ticket)
+	async ticket(@Ctx() ctx: Context, @Arg('ticketId') ticketId: number) {
+		const userId = ctx.res.model.data.user.id;
+		const ticket = await TicketService.getTicketByIdAndUserId(ticketId, userId);
+		if (!ticket) {
+			throw new GraphQLError('Ticket not found');
+		}
+
+		return ticket;
+	}
+
+	@UseMiddleware([AuthMiddleware.LoginRequire])
+	@Query(() => [Ticket])
+	async myTickets(@Ctx() ctx: Context) {
+		const userId = ctx.res.model.data.user.id;
+		const tickets = await TicketService.getTicketsByUserId(userId);
+		return tickets;
 	}
 }

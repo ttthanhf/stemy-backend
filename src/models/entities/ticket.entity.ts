@@ -27,7 +27,7 @@ export class Ticket extends BaseEntity {
 	rating!: number;
 
 	@Field(() => TicketCategory)
-	@OneToMany(() => TicketCategory, (ticketCategory) => ticketCategory.tickets)
+	@ManyToOne(() => TicketCategory)
 	category!: Rel<TicketCategory>;
 
 	@Field(() => TicketStatus)
@@ -71,7 +71,7 @@ export class TicketCategory extends BaseEntity {
 	name!: string;
 
 	@Field(() => [Ticket])
-	@ManyToOne(() => Ticket)
+	@OneToMany(() => Ticket, (ticket) => ticket.category)
 	tickets = new Collection<Ticket>(this);
 }
 

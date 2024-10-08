@@ -54,10 +54,6 @@ export class Order extends BaseEntity {
 	@Property()
 	fullName!: string;
 
-	@Field()
-	@Property({ default: false })
-	isAllowRating!: boolean;
-
 	@Field({ nullable: true })
 	@Property({ type: 'datetime', nullable: true })
 	shipTime!: Date;

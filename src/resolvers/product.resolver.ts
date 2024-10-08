@@ -2,8 +2,9 @@ import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 import { PageInfo } from 'models/responses/pagination/base.response';
 import { ProductsWithPaginationResponse } from 'models/responses/pagination/product.response';
 import { Arg, Args, Info, Mutation, Query, Resolver } from 'type-graphql';
-import { Product } from '~entities/product.entity';
+import { Product, ProductCategory } from '~entities/product.entity';
 import {
+	ProductCategoryService,
 	ProductImageService,
 	ProductLabService,
 	ProductService
@@ -93,5 +94,25 @@ export class ProductResolver {
 	@Mutation(() => Product)
 	async deleteProduct(@Arg('id') id: number) {
 		return await ProductService.softDeleteProduct(id);
+	}
+}
+
+@Resolver()
+export class ProductCategoryResolver {
+	@Query(() => [ProductCategory])
+	async productCategories(@Info() info: GraphQLResolveInfo) {
+		const fields = ResolverUtil.getNodes(
+			info.fieldNodes[0].selectionSet?.selections
+		);
+		const categories =
+			await ProductCategoryService.getProductCategories(fields);
+		return categories;
+	}
+
+	@Query(() => ProductCategory, { nullable: true })
+	async productCategory(@Arg('id') id: number) {
+		const productCategory =
+			await ProductCategoryService.getProductCategoryById(id);
+		return productCategory;
 	}
 }

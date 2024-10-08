@@ -11,8 +11,10 @@ import { AuthResolver } from '~resolvers/auth.resolver';
 import { CartResolver } from '~resolvers/cart.resolver';
 import { FeedbackResolver } from '~resolvers/feedback.resolver';
 import { OrderResolver } from '~resolvers/order.resolver';
-import { ProductResolver } from '~resolvers/product.resolver';
-import { ProductCategoryResolver } from '~resolvers/productCategory.resolver';
+import {
+	ProductCategoryResolver,
+	ProductResolver
+} from '~resolvers/product.resolver';
 import { TicketResolver } from '~resolvers/ticket.resolver';
 import { UserResolver } from '~resolvers/user.resolver';
 import { FileScalar, FileScalarType } from '~types/scalars/file.scalar';

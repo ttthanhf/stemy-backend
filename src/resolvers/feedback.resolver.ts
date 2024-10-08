@@ -48,8 +48,8 @@ export class FeedbackResolver {
 		if (!order) {
 			throw new GraphQLError('Order not found');
 		}
-		if (!order.isAllowRating) {
-			throw new GraphQLError('Order has expired for rating');
+		if (order.status != OrderStatus.RECEIVED) {
+			throw new GraphQLError('Only rating when order status is received');
 		}
 
 		for (const item of input) {

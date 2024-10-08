@@ -30,15 +30,18 @@ export class CartService {
 		userId: number,
 		hasLab: boolean
 	) {
-		return cartRepository.findOne({
-			hasLab: hasLab,
-			product: {
-				id: productId
+		return cartRepository.findOne(
+			{
+				hasLab: hasLab,
+				product: {
+					id: productId
+				},
+				user: {
+					id: userId
+				}
 			},
-			user: {
-				id: userId
-			}
-		});
+			{ populate: ['product', 'product.images'] }
+		);
 	}
 
 	static async addProductToCart(
@@ -75,18 +78,18 @@ export class CartService {
 				throw new GraphQLError('This product has lab selected already in cart');
 			}
 
-			const cart = new Cart();
-			cart.product = product;
-			cart.user = user;
-			cart.quantity = quantity;
-			cart.hasLab = hasLab;
+			const newCart = new Cart();
+			newCart.product = product;
+			newCart.user = user;
+			newCart.quantity = quantity;
+			newCart.hasLab = hasLab;
 
-			await cartRepository.createAndSave(cart);
+			const cart = await cartRepository.createAndSave(newCart);
 
 			return cart;
 		}
 
-		let cart = await this.getCartByProductIdAndHasLab(
+		const cart = await this.getCartByProductIdAndHasLab(
 			product.id,
 			user.id,
 			false
@@ -94,26 +97,32 @@ export class CartService {
 
 		if (cart) {
 			cart.quantity = cart.quantity + quantity;
-		} else {
-			cart = new Cart();
-			cart.product = product;
-			cart.user = user;
-			cart.quantity = quantity;
+			if (cart.quantity > 99) {
+				throw new GraphQLError(
+					'The number of this product must not exceed 99 products'
+				);
+			}
 
-			await cartRepository.create(cart);
+			cart.hasLab = hasLab;
+
+			await cartRepository.save(cart);
+
+			return cart;
 		}
 
-		if (cart.quantity > 99) {
+		const newCart = new Cart();
+		newCart.product = product;
+		newCart.user = user;
+		newCart.quantity = quantity;
+		newCart.hasLab = hasLab;
+
+		if (newCart.quantity > 99) {
 			throw new GraphQLError(
 				'The number of this product must not exceed 99 products'
 			);
 		}
 
-		cart.hasLab = hasLab;
-
-		await cartRepository.save(cart);
-
-		return cart;
+		return await cartRepository.createAndSave(newCart);
 	}
 
 	static async updateProductInCart(
@@ -154,7 +163,7 @@ export class CartService {
 					id: userId
 				}
 			},
-			{ populate: ['product'] }
+			{ populate: ['product', 'product.lab'] }
 		);
 	}
 

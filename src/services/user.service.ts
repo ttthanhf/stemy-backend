@@ -10,6 +10,7 @@ import { UserArg } from '~types/args/user.arg';
 import { FileUpload } from '~types/scalars/file.scalar';
 import { NumberUtil } from '~utils/number.util';
 import { UploadService } from './upload.service';
+import { Role } from '~constants/role.constant';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 export class UserService {
@@ -71,6 +72,15 @@ export class UserService {
 		await UploadService.uploadFile(imageName, image.blobParts[0]);
 
 		return env.S3_HOST + imageName;
+	}
+
+	static async getNewStaffs(excludeStaffId: number = 0) {
+		return userRepository.find({
+			role: Role.STAFF,
+			id: {
+				$ne: excludeStaffId
+			}
+		});
 	}
 }
 

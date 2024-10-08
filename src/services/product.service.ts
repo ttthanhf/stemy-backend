@@ -128,6 +128,10 @@ export class ProductCategoryService {
 	static async getProductCategories(fields: any) {
 		return productCategoryRepository.find({}, { fields });
 	}
+
+	static async getProductCategoryById(id: number) {
+		return productCategoryRepository.findOne({ id });
+	}
 }
 
 export class ProductImageService {
