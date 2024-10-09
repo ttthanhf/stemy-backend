@@ -11,6 +11,7 @@ import { env } from '~configs/env.config';
 import { Role } from '~constants/role.constant';
 import { PageInfoArgs, SortOrderArgs } from '~types/args/pagination.arg';
 import { PaginationUtil } from '~utils/pagination.util';
+import { TicketStatus } from '~constants/ticket.constant';
 
 export class TicketService {
 	static async createTicket(ticket: Ticket) {
@@ -59,11 +60,23 @@ export class TicketService {
 	}
 
 	static async getTicketByIdAndSenderId(ticketId: number, senderId: number) {
-		return ticketRepository.findOne({
-			id: ticketId,
-			sender: {
-				id: senderId
-			}
+		return ticketRepository.findOne(
+			{
+				id: ticketId,
+				sender: {
+					id: senderId
+				}
+			},
+			{ populate: ['replier'] }
+		);
+	}
+
+	static async countClosedTicketByReplierId(replierId: number) {
+		return ticketRepository.count({
+			replier: {
+				id: replierId
+			},
+			status: TicketStatus.CLOSE
 		});
 	}
 

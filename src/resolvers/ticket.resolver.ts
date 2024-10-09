@@ -229,6 +229,15 @@ export class TicketResolver {
 		ticket.rating = rating;
 		await TicketService.updateTicket(ticket);
 
+		const replier = ticket.replier;
+		const numberOfClosedTicket =
+			await TicketService.countClosedTicketByReplierId(replier.id);
+
+		replier.rating =
+			(replier.rating * (numberOfClosedTicket - 1) + rating) /
+			numberOfClosedTicket;
+		await UserService.updateUser(replier);
+
 		return Ticket;
 	}
 
