@@ -1,3 +1,4 @@
+import { RoleRequire } from 'decorators/auth.decorator';
 import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 import {
 	Arg,
@@ -9,15 +10,15 @@ import {
 	Resolver,
 	UseMiddleware
 } from 'type-graphql';
+import { Role } from '~constants/role.constant';
 import { User, UserLab } from '~entities/user.entity';
-import { ResolverUtil } from '~utils/resolver.util';
+import { AuthMiddleware } from '~middlewares/auth.middleware';
+import { OrderService } from '~services/order.service';
+import { UserLabService, UserService } from '~services/user.service';
 import { UpdateUserArg, UserArg } from '~types/args/user.arg';
 import { Context } from '~types/context.type';
-import { AuthMiddleware } from '~middlewares/auth.middleware';
-import { UserLabService, UserService } from '~services/user.service';
-import { RoleRequire } from 'decorators/auth.decorator';
-import { Role } from '~constants/role.constant';
 import { FileScalar, FileUpload } from '~types/scalars/file.scalar';
+import { ResolverUtil } from '~utils/resolver.util';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -114,6 +115,9 @@ export class UserResolver {
 		if (!user) {
 			throw new GraphQLError('Something error with this user');
 		}
+
+		const orders = await OrderService.getOrdersByUserId(userId);
+		await OrderService.handleOrderStatusBySystem(orders);
 
 		const userLabs = await UserLabService.getUserLabsByUserId(user.id, fields);
 		return userLabs;

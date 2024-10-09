@@ -1,4 +1,4 @@
-import { User } from '~entities/user.entity';
+import { User, UserLab } from '~entities/user.entity';
 import {
 	userLabRepository,
 	userRepository
@@ -136,5 +136,13 @@ export class UserLabService {
 				fields
 			}
 		);
+	}
+
+	static async createUserLab(userLab: UserLab) {
+		return userLabRepository.createAndSave(userLab);
+	}
+
+	static async updateUserLab(userLab: UserLab) {
+		return userLabRepository.save(userLab);
 	}
 }

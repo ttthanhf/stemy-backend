@@ -8,6 +8,7 @@ import {
 	EventArgs,
 	ManyToOne,
 	OneToMany,
+	OneToOne,
 	Property
 } from '@mikro-orm/core';
 import { BaseEntity } from './base.entity';
@@ -104,10 +105,10 @@ export class UserLab extends BaseEntity {
 	productLab!: ProductLab;
 
 	@Field(() => OrderItem)
-	@ManyToOne(() => OrderItem)
+	@OneToOne(() => OrderItem, (orderItem) => orderItem.userLab, { owner: true })
 	orderItem!: OrderItem;
 
 	@Field(() => Boolean)
-	@Property()
+	@Property({ default: false })
 	isActive!: boolean;
 }

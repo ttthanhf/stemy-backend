@@ -3,7 +3,6 @@ import { Cart } from '~entities/cart.entity';
 import { Product } from '~entities/product.entity';
 import { User } from '~entities/user.entity';
 import cartRepository from '~repositories/cart.repository';
-import { UserLabService } from './user.service';
 
 export class CartService {
 	static async getCartsByUserId(userId: number) {
@@ -25,20 +24,20 @@ export class CartService {
 		});
 	}
 
-	static async getCartByProductIdAndHasLab(
+	static async getCartByProductIdAndUserId(
 		productId: number,
 		userId: number,
 		hasLab: boolean
 	) {
 		return cartRepository.findOne(
 			{
-				hasLab: hasLab,
 				product: {
 					id: productId
 				},
 				user: {
 					id: userId
-				}
+				},
+				hasLab: hasLab
 			},
 			{ populate: ['product', 'product.images'] }
 		);
@@ -50,49 +49,10 @@ export class CartService {
 		quantity: number,
 		hasLab: boolean
 	) {
-		if (hasLab) {
-			if (quantity > 1) {
-				throw new GraphQLError(
-					'Only add 1 quantity for product included lab selected'
-				);
-			}
-
-			const isUserHasThisLab = await UserLabService.isUserHasThisLabByProductId(
-				user.id,
-				product.id
-			);
-			if (isUserHasThisLab) {
-				throw new GraphQLError('You already have this lab for this product');
-			}
-
-			const isProductHasLabInCart = await cartRepository.count({
-				hasLab: true,
-				user: {
-					id: user.id
-				},
-				product: {
-					id: product.id
-				}
-			});
-			if (isProductHasLabInCart > 0) {
-				throw new GraphQLError('This product has lab selected already in cart');
-			}
-
-			const newCart = new Cart();
-			newCart.product = product;
-			newCart.user = user;
-			newCart.quantity = quantity;
-			newCart.hasLab = hasLab;
-
-			const cart = await cartRepository.createAndSave(newCart);
-
-			return cart;
-		}
-
-		const cart = await this.getCartByProductIdAndHasLab(
+		const cart = await this.getCartByProductIdAndUserId(
 			product.id,
 			user.id,
-			false
+			hasLab
 		);
 
 		if (cart) {
@@ -103,11 +63,15 @@ export class CartService {
 				);
 			}
 
-			cart.hasLab = hasLab;
-
 			await cartRepository.save(cart);
 
 			return cart;
+		}
+
+		if (quantity > 99) {
+			throw new GraphQLError(
+				'The number of this product must not exceed 99 products'
+			);
 		}
 
 		const newCart = new Cart();
@@ -115,12 +79,6 @@ export class CartService {
 		newCart.user = user;
 		newCart.quantity = quantity;
 		newCart.hasLab = hasLab;
-
-		if (newCart.quantity > 99) {
-			throw new GraphQLError(
-				'The number of this product must not exceed 99 products'
-			);
-		}
 
 		return await cartRepository.createAndSave(newCart);
 	}
@@ -134,10 +92,6 @@ export class CartService {
 
 		if (!cart) {
 			throw new GraphQLError('Product not found in cart');
-		}
-
-		if (cart.hasLab) {
-			throw new GraphQLError('This cart cant update because it has lab');
 		}
 
 		cart.quantity = quantity;

@@ -6,11 +6,12 @@ import { PaymentProvider } from '~constants/payment.constant';
 import { Cart } from '~entities/cart.entity';
 import { Order } from '~entities/order.entity';
 import { Product } from '~entities/product.entity';
+import { UserLab } from '~entities/user.entity';
 import { AuthMiddleware } from '~middlewares/auth.middleware';
 import { CartService } from '~services/cart.service';
 import { OrderService } from '~services/order.service';
 import { ProductService } from '~services/product.service';
-import { UserService } from '~services/user.service';
+import { UserLabService, UserService } from '~services/user.service';
 import { Context } from '~types/context.type';
 import { CheckoutOrderInput } from '~types/inputs/order.input';
 
@@ -63,6 +64,10 @@ export class OrderResolver {
 		@Arg('input') input: CheckoutOrderInput
 	) {
 		const userId = ctx.res.model.data.user.id;
+		const user = await UserService.getUserById(userId);
+		if (!user) {
+			throw new GraphQLError('Something error with this user');
+		}
 
 		OrderService.checkOrderSecureHash(input);
 
@@ -76,6 +81,22 @@ export class OrderResolver {
 			products.push(product);
 		}
 		await ProductService.updateProducts(products);
+
+		//create user lab
+		for await (const orderItem of order.orderItems) {
+			if (orderItem.hasLab) {
+				if (!orderItem.product.lab) {
+					throw new Error(`ProductId: ${orderItem.product.id} don't have lab`);
+				}
+
+				const userLab = new UserLab();
+				userLab.user = user;
+				userLab.productLab = orderItem.product.lab;
+				userLab.orderItem = orderItem;
+
+				await UserLabService.createUserLab(userLab);
+			}
+		}
 
 		return true;
 	}
@@ -109,34 +130,13 @@ export class OrderResolver {
 		@Arg('status', { nullable: true }) status?: OrderStatus
 	) {
 		const userId = ctx.res.model.data.user.id;
+		const user = await UserService.getUserById(userId);
+		if (!user) {
+			throw new GraphQLError('User not found ???');
+		}
 
 		const orders = await OrderService.getOrdersBySearch(search, userId, status);
-		const updatedOrderList: Order[] = [];
-		for await (const order of orders) {
-			// Auto change status to received: current setting 5 min
-			if (order.status == OrderStatus.DELIVERED) {
-				if (new Date().getTime() - order.shipTime.getTime() > 1000 * 60 * 5) {
-					order.status = OrderStatus.RECEIVED;
-					order.receiveTime = new Date();
-
-					updatedOrderList.push(order);
-				}
-			}
-
-			//checking for order is expire for rating: current setting 5 min
-			else if (order.status == OrderStatus.RECEIVED) {
-				if (
-					new Date().getTime() - order.receiveTime.getTime() >
-					1000 * 60 * 5
-				) {
-					order.status = OrderStatus.UNRATED;
-					updatedOrderList.push(order);
-				}
-			}
-		}
-		if (updatedOrderList.length > 0) {
-			await OrderService.updateOrders(updatedOrderList);
-		}
+		await OrderService.handleOrderStatusBySystem(orders);
 
 		return orders;
 	}
@@ -190,6 +190,15 @@ export class OrderResolver {
 		order.receiveTime = new Date();
 
 		await OrderService.updateOrder(order);
+
+		//active user lab
+		for await (const orderItem of order.orderItems) {
+			if (orderItem.userLab) {
+				const userLab = orderItem.userLab;
+				userLab.isActive = true;
+				await UserLabService.updateUserLab(userLab);
+			}
+		}
 
 		return order;
 	}

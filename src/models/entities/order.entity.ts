@@ -6,15 +6,16 @@ import {
 	Enum,
 	ManyToOne,
 	OneToMany,
+	OneToOne,
 	Property,
 	Rel
 } from '@mikro-orm/core';
-import { BaseEntity } from './base.entity';
-import { User } from './user.entity';
-import { Product } from './product.entity';
-import { OrderStatus } from '~constants/order.constant';
 import { Field, Int, ObjectType } from 'type-graphql';
+import { OrderStatus } from '~constants/order.constant';
 import { PaymentProvider } from '~constants/payment.constant';
+import { BaseEntity } from './base.entity';
+import { Product } from './product.entity';
+import { User, UserLab } from './user.entity';
 
 @ObjectType()
 @Embeddable()
@@ -101,4 +102,8 @@ export class OrderItem extends BaseEntity {
 	@Field(() => Int)
 	@Property()
 	labPrice!: number;
+
+	@Field(() => UserLab, { nullable: true })
+	@OneToOne(() => UserLab, (userLab) => userLab.orderItem, { nullable: true })
+	userLab?: Rel<UserLab>;
 }

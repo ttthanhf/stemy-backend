@@ -29,6 +29,12 @@ export class DownloadController {
 			};
 			return res.model.send();
 		}
+		if (!lab.isActive) {
+			res.model.errors = {
+				message: 'This lab not active yet'
+			};
+			return res.model.send();
+		}
 
 		const response = await fetch(lab.productLab.url);
 		const arrayBuffer = await response.arrayBuffer();

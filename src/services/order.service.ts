@@ -15,6 +15,7 @@ import { DateTimeUtil } from '~utils/datetime.util';
 import { NumberUtil } from '~utils/number.util';
 import { ObjectUtil } from '~utils/object.util';
 import { QueryString } from '~utils/query-string.util';
+import { UserLabService } from './user.service';
 
 export class OrderService {
 	static async createOrder(
@@ -121,7 +122,9 @@ export class OrderService {
 					id: userId
 				}
 			},
-			{ populate: ['orderItems', 'orderItems.product'] }
+			{
+				populate: ['orderItems', 'orderItems.product', 'orderItems.product.lab']
+			}
 		);
 
 		if (!order) {
@@ -170,8 +173,10 @@ export class OrderService {
 			{
 				populate: [
 					'orderItems',
+					'orderItems.userLab',
 					'orderItems.product',
-					'orderItems.product.images'
+					'orderItems.product.images',
+					'orderItems.product.lab'
 				]
 			}
 		);
@@ -189,11 +194,17 @@ export class OrderService {
 					}
 				: {};
 
-		const parsedSearch = parseInt(search, 10);
+		let id: number;
+		try {
+			id = parseInt(atob(atob(atob(atob('search')))), 10);
+		} catch {
+			id = NaN;
+		}
+
 		return orderRepository.find(
 			{
 				$or: [
-					{ id: !isNaN(parsedSearch) ? parsedSearch : undefined },
+					{ id: !isNaN(id) ? id : undefined },
 					{
 						orderItems: {
 							product: {
@@ -245,6 +256,50 @@ export class OrderService {
 				id: userId
 			}
 		});
+	}
+
+	static async handleOrderStatusBySystem(orders: Order[]) {
+		const updatedOrderList: Order[] = [];
+		for await (const order of orders) {
+			// Auto change status to received: current setting 5 min
+			if (order.status == OrderStatus.DELIVERED) {
+				if (new Date().getTime() - order.shipTime.getTime() > 1000 * 60 * 5) {
+					order.status = OrderStatus.RECEIVED;
+					order.receiveTime = new Date();
+					updatedOrderList.push(order);
+
+					//create user lab
+					for await (const orderItem of order.orderItems) {
+						if (orderItem.hasLab) {
+							if (!orderItem.product.lab) {
+								throw new Error(
+									`ProductId: ${orderItem.product.id} don't have lab`
+								);
+							}
+							if (orderItem.userLab) {
+								const userLab = orderItem.userLab;
+								userLab.isActive = true;
+								await UserLabService.updateUserLab(userLab);
+							}
+						}
+					}
+				}
+			}
+
+			//checking for order is expire for rating: current setting 5 min
+			if (order.status == OrderStatus.RECEIVED) {
+				if (
+					new Date().getTime() - order.receiveTime.getTime() >
+					1000 * 60 * 5
+				) {
+					order.status = OrderStatus.UNRATED;
+					updatedOrderList.push(order);
+				}
+			}
+		}
+		if (updatedOrderList.length > 0) {
+			await OrderService.updateOrders(updatedOrderList);
+		}
 	}
 }
 
