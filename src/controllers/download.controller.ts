@@ -5,7 +5,7 @@ import { JWTUtil } from '~utils/jwt.util';
 
 export class DownloadController {
 	static async downloadLab(res: HttpResponse, req: HttpRequest) {
-		const productId = req.getParameter(0);
+		const orderItemId = req.getParameter(0);
 		const access_token = req.getHeader('authorization');
 
 		const token = JWTUtil.verify(access_token);
@@ -18,9 +18,9 @@ export class DownloadController {
 
 		const userId = token.payload.id;
 
-		const lab = await UserLabService.getUserLabByUserIdAndProductId(
+		const lab = await UserLabService.getUserLabByUserIdAndOrderItemId(
 			userId,
-			Number(productId)
+			Number(orderItemId)
 		);
 
 		if (!lab) {

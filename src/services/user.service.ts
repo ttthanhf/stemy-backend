@@ -85,19 +85,17 @@ export class UserService {
 }
 
 export class UserLabService {
-	static async getUserLabByUserIdAndProductId(
+	static async getUserLabByUserIdAndOrderItemId(
 		userId: number,
-		productId: number
+		orderItemId: number
 	) {
 		return userLabRepository.findOne(
 			{
 				user: {
 					id: userId
 				},
-				productLab: {
-					product: {
-						id: productId
-					}
+				orderItem: {
+					id: orderItemId
 				}
 			},
 			{
