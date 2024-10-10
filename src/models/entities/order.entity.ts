@@ -16,6 +16,7 @@ import { PaymentProvider } from '~constants/payment.constant';
 import { BaseEntity } from './base.entity';
 import { Product } from './product.entity';
 import { User, UserLab } from './user.entity';
+import { Ticket } from './ticket.entity';
 
 @ObjectType()
 @Embeddable()
@@ -106,4 +107,8 @@ export class OrderItem extends BaseEntity {
 	@Field(() => UserLab, { nullable: true })
 	@OneToOne(() => UserLab, (userLab) => userLab.orderItem, { nullable: true })
 	userLab?: Rel<UserLab>;
+
+	@Field(() => [Ticket])
+	@OneToMany(() => Ticket, (ticket) => ticket.orderItem)
+	tickets = new Collection<Ticket>(this);
 }

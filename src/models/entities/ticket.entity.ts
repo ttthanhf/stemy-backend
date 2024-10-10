@@ -36,11 +36,11 @@ export class Ticket extends BaseEntity {
 
 	@Field(() => OrderItem)
 	@ManyToOne(() => OrderItem)
-	orderItem!: OrderItem;
+	orderItem!: Rel<OrderItem>;
 
 	@Field(() => User)
 	@OneToOne(() => User)
-	sender!: User;
+	sender!: Rel<User>;
 
 	@Field()
 	@Property()
@@ -52,7 +52,7 @@ export class Ticket extends BaseEntity {
 
 	@Field(() => User, { nullable: true })
 	@OneToOne(() => User, { nullable: true })
-	replier!: User;
+	replier!: Rel<User>;
 
 	@Field({ nullable: true })
 	@Property({ nullable: true })

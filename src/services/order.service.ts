@@ -226,7 +226,8 @@ export class OrderService {
 					'orderItems.product',
 					'orderItems.product.lab',
 					'orderItems.product.images',
-					'orderItems.userLab'
+					'orderItems.userLab',
+					'orderItems.tickets'
 				]
 			}
 		);
