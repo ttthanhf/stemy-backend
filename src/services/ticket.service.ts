@@ -42,21 +42,32 @@ export class TicketService {
 	}
 
 	static async getTicketByIdAndUserId(ticketId: number, userId: number) {
-		return ticketRepository.findOne({
-			id: ticketId,
-			$or: [
-				{
-					sender: {
-						id: userId
+		return ticketRepository.findOne(
+			{
+				id: ticketId,
+				$or: [
+					{
+						sender: {
+							id: userId
+						}
+					},
+					{
+						replier: {
+							id: userId
+						}
 					}
-				},
-				{
-					replier: {
-						id: userId
-					}
-				}
-			]
-		});
+				]
+			},
+			{
+				populate: [
+					'sender',
+					'replier',
+					'orderItem',
+					'orderItem.product',
+					'category'
+				]
+			}
+		);
 	}
 
 	static async getTicketByIdAndSenderId(ticketId: number, senderId: number) {

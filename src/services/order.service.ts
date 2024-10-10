@@ -225,7 +225,8 @@ export class OrderService {
 					'orderItems',
 					'orderItems.product',
 					'orderItems.product.lab',
-					'orderItems.product.images'
+					'orderItems.product.images',
+					'orderItems.userLab'
 				]
 			}
 		);
@@ -278,8 +279,10 @@ export class OrderService {
 							}
 							if (orderItem.userLab) {
 								const userLab = orderItem.userLab;
-								userLab.isActive = true;
-								await UserLabService.updateUserLab(userLab);
+								if (!userLab.isActive) {
+									userLab.isActive = true;
+									await UserLabService.updateUserLab(userLab);
+								}
 							}
 						}
 					}

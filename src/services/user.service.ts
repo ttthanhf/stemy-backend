@@ -133,7 +133,8 @@ export class UserLabService {
 				}
 			},
 			{
-				fields
+				fields,
+				populate: ['orderItem', 'orderItem.order', 'orderItem.product']
 			}
 		);
 	}

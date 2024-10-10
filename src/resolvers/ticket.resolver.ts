@@ -245,6 +245,20 @@ export class TicketResolver {
 	@Query(() => Ticket)
 	async ticket(@Ctx() ctx: Context, @Arg('ticketId') ticketId: number) {
 		const userId = ctx.res.model.data.user.id;
+		const user = await UserService.getUserById(userId);
+		if (!user) {
+			throw new GraphQLError('User error');
+		}
+
+		if (user.role == Role.MANAGER) {
+			const ticket = await TicketService.getTicketById(ticketId);
+			if (!ticket) {
+				throw new GraphQLError('Ticket not found');
+			}
+
+			return ticket;
+		}
+
 		const ticket = await TicketService.getTicketByIdAndUserId(ticketId, userId);
 		if (!ticket) {
 			throw new GraphQLError('Ticket not found');

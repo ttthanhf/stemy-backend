@@ -195,8 +195,10 @@ export class OrderResolver {
 		for await (const orderItem of order.orderItems) {
 			if (orderItem.userLab) {
 				const userLab = orderItem.userLab;
-				userLab.isActive = true;
-				await UserLabService.updateUserLab(userLab);
+				if (!userLab.isActive) {
+					userLab.isActive = true;
+					await UserLabService.updateUserLab(userLab);
+				}
 			}
 		}
 
