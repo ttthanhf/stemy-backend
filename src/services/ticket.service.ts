@@ -19,9 +19,21 @@ export class TicketService {
 	}
 
 	static async getTicketById(ticketId: number) {
-		return ticketRepository.findOne({
-			id: ticketId
-		});
+		return ticketRepository.findOne(
+			{
+				id: ticketId
+			},
+			{
+				populate: [
+					'sender',
+					'replier',
+					'orderItem',
+					'orderItem.product',
+					'category',
+					'images'
+				]
+			}
+		);
 	}
 
 	static async getTicketsByUserId(userId: number) {
@@ -64,7 +76,8 @@ export class TicketService {
 					'replier',
 					'orderItem',
 					'orderItem.product',
-					'category'
+					'category',
+					'images'
 				]
 			}
 		);
