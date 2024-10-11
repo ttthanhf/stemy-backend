@@ -22,7 +22,7 @@ import { ResolverUtil } from '~utils/resolver.util';
 
 @Resolver(() => User)
 export class UserResolver {
-	@RoleRequire([Role.STAFF])
+	@RoleRequire([Role.STAFF, Role.ADMIN])
 	@Query(() => [User])
 	async users(@Info() info: GraphQLResolveInfo) {
 		const fields = ResolverUtil.getNodes(
@@ -32,7 +32,7 @@ export class UserResolver {
 		return await UserService.getAllUser(fields);
 	}
 
-	@RoleRequire([Role.STAFF])
+	@RoleRequire([Role.STAFF, Role.ADMIN])
 	@Query(() => User, { nullable: true })
 	async user(@Args() userArgs: UserArg, @Info() info: GraphQLResolveInfo) {
 		const fields = ResolverUtil.getNodes(

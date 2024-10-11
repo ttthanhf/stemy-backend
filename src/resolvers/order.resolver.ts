@@ -1,8 +1,20 @@
-import { GraphQLError } from 'graphql';
+import { RoleRequire } from 'decorators/auth.decorator';
+import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 import { CountOrderResponse } from 'models/responses/order.model';
-import { Arg, Ctx, Int, Mutation, Query, UseMiddleware } from 'type-graphql';
+import { PageInfo } from 'models/responses/pagination/base.response';
+import {
+	Arg,
+	Args,
+	Ctx,
+	Info,
+	Int,
+	Mutation,
+	Query,
+	UseMiddleware
+} from 'type-graphql';
 import { OrderStatus } from '~constants/order.constant';
 import { PaymentProvider } from '~constants/payment.constant';
+import { Role } from '~constants/role.constant';
 import { Cart } from '~entities/cart.entity';
 import { Order } from '~entities/order.entity';
 import { Product } from '~entities/product.entity';
@@ -12,8 +24,10 @@ import { CartService } from '~services/cart.service';
 import { OrderService } from '~services/order.service';
 import { ProductService } from '~services/product.service';
 import { UserLabService, UserService } from '~services/user.service';
+import { PageInfoArgs, SortOrderArgs } from '~types/args/pagination.arg';
 import { Context } from '~types/context.type';
 import { CheckoutOrderInput } from '~types/inputs/order.input';
+import { ResolverUtil } from '~utils/resolver.util';
 
 export class OrderResolver {
 	@UseMiddleware(AuthMiddleware.LoginRequire)
@@ -139,6 +153,31 @@ export class OrderResolver {
 		await OrderService.handleOrderStatusBySystem(orders);
 
 		return orders;
+	}
+
+	@RoleRequire([Role.MANAGER])
+	@Query(() => [Order])
+	async orders(
+		@Info() info: GraphQLResolveInfo,
+		@Args() pageInfoArgs: PageInfoArgs,
+		@Args() sortOrderArgs: SortOrderArgs
+	) {
+		const fields = ResolverUtil.getFields(
+			info.fieldNodes[0].selectionSet?.selections
+		);
+
+		const [orders, totalItem] = await OrderService.getOrdersPagination(
+			fields,
+			pageInfoArgs,
+			sortOrderArgs
+		);
+
+		const pageInfo = new PageInfo(totalItem, pageInfoArgs);
+
+		return {
+			items: orders,
+			pageInfo: pageInfo
+		};
 	}
 
 	@UseMiddleware(AuthMiddleware.LoginRequire)
