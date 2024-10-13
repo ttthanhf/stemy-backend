@@ -1,6 +1,11 @@
 import { GraphQLError } from 'graphql';
 import { env } from '~configs/env.config';
-import { Product, ProductImage, ProductLab } from '~entities/product.entity';
+import {
+	Product,
+	ProductCategory,
+	ProductImage,
+	ProductLab
+} from '~entities/product.entity';
 import {
 	productCategoryRepository,
 	productImageRepository,
@@ -15,6 +20,7 @@ import { NumberUtil } from '~utils/number.util';
 import { PaginationUtil } from '~utils/pagination.util';
 import { UploadService } from './upload.service';
 import { FilterSearchProduct } from '~types/args/product.arg';
+import { ProductCategoryInput } from '~types/inputs/productCategory.input';
 
 export class ProductService {
 	static async getProductsPagination(
@@ -113,6 +119,35 @@ export class ProductService {
 
 		return product;
 	}
+
+	static async updateProduct(id: number, input: ProductInput) {
+		const product = await productRepository.findOne({
+			id: id,
+			isDelete: false
+		});
+
+		if (!product) {
+			throw new GraphQLError('Product not found');
+		}
+
+		if (input.name) product.name = input.name;
+		if (input.description) product.description = input.description;
+		if (input.price) product.price = input.price;
+
+		if (input.categoryIds) {
+			const productCategories =
+				await ProductCategoryService.getProductCategoryByIds(input.categoryIds);
+			if (!productCategories) {
+				throw new GraphQLError('Category not found');
+			}
+			product.categories.removeAll();
+			productCategories.forEach((category) => product.categories.add(category));
+		}
+
+		await productRepository.save(product);
+
+		return product;
+	}
 }
 
 export class ProductCategoryService {
@@ -131,6 +166,48 @@ export class ProductCategoryService {
 
 	static async getProductCategoryById(id: number) {
 		return productCategoryRepository.findOne({ id });
+	}
+
+	static async createProductCategory(input: ProductCategoryInput) {
+		const productCategory = MapperUtil.mapObjectToClass(input, ProductCategory);
+		return productCategoryRepository.createAndSave(productCategory);
+	}
+
+	static async updateProductCategory(id: number, input: ProductCategoryInput) {
+		const productCategory = await productCategoryRepository.findOne({ id });
+		if (!productCategory) {
+			throw new GraphQLError('Product category not found');
+		}
+		productCategory.name = input.name;
+		productCategory.title = input.title;
+		productCategory.type = input.type;
+
+		return productCategoryRepository.save(productCategory);
+	}
+
+	static async deleteProductCategory(id: number) {
+		const productCategory = await productCategoryRepository.findOne({ id });
+		if (!productCategory) {
+			throw new GraphQLError('Product category not found');
+		}
+
+		// Check if there are any products associated with this category
+		const productsCount = await productRepository.count({
+			categories: {
+				id: id
+			},
+			isDelete: false
+		});
+
+		if (productsCount > 0) {
+			throw new GraphQLError('Cannot delete category with associated products');
+		}
+
+		productCategory.isDelete = true;
+		productCategory.deletedAt = new Date();
+
+		await productCategoryRepository.save(productCategory);
+		return productCategory;
 	}
 }
 
@@ -152,6 +229,17 @@ export class ProductImageService {
 		productImage.url = env.S3_HOST + imageName;
 
 		await productImageRepository.createAndSave(productImage);
+	}
+
+	static async updateProductImages(product: Product, images: FileUpload[]) {
+		// Remove old images
+		const productImages = product.images;
+		await productImageRepository.remove(productImages);
+
+		// Add new images
+		for await (const image of images) {
+			await this.createProductImage(product, image);
+		}
 	}
 }
 
@@ -179,5 +267,25 @@ export class ProductLabService {
 		productLab.price = price;
 
 		await productLabRepository.createAndSave(productLab);
+	}
+
+	static async updateProductLab(
+		product: Product,
+		lab: FileUpload,
+		price: number
+	) {
+		// Remove old lab if exists
+		const productLab = await productLabRepository.findOne({
+			product: product.id
+		});
+		if (productLab) {
+			// soft delete
+			productLab.isDelete = true;
+			productLab.deletedAt = new Date();
+			await productLabRepository.save(productLab);
+		}
+
+		// Create new lab
+		await this.createProductLab(product, lab, price);
 	}
 }
