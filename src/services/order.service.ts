@@ -198,7 +198,7 @@ export class OrderService {
 
 		let id: number;
 		try {
-			id = parseInt(atob(atob(atob(atob('search')))), 10);
+			id = parseInt(atob(atob(atob(atob(search)))), 10);
 		} catch {
 			id = NaN;
 		}
