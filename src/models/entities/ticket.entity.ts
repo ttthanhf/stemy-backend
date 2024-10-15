@@ -4,7 +4,6 @@ import {
 	Enum,
 	ManyToOne,
 	OneToMany,
-	OneToOne,
 	Property,
 	Rel
 } from '@mikro-orm/core';
@@ -39,7 +38,7 @@ export class Ticket extends BaseEntity {
 	orderItem!: Rel<OrderItem>;
 
 	@Field(() => User)
-	@OneToOne(() => User)
+	@ManyToOne(() => User)
 	sender!: Rel<User>;
 
 	@Field()
@@ -50,8 +49,15 @@ export class Ticket extends BaseEntity {
 	@OneToMany(() => TicketImage, (ticketImage) => ticketImage.ticket)
 	images = new Collection<TicketImage>(this);
 
-	@Field(() => User, { nullable: true })
-	@OneToOne(() => User, { nullable: true })
+	@Field(() => [ReplyTicketImage])
+	@OneToMany(
+		() => ReplyTicketImage,
+		(ticketReplyImage) => ticketReplyImage.ticket
+	)
+	replyImages = new Collection<ReplyTicketImage>(this);
+
+	@Field(() => User)
+	@ManyToOne(() => User)
 	replier!: Rel<User>;
 
 	@Field({ nullable: true })
@@ -78,6 +84,22 @@ export class TicketCategory extends BaseEntity {
 @ObjectType()
 @Entity()
 export class TicketImage extends BaseEntity {
+	@Field()
+	@ManyToOne(() => Ticket)
+	ticket!: Ticket;
+
+	@Field()
+	@Property()
+	url!: string;
+
+	@Field(() => Role)
+	@Enum(() => Role)
+	owner!: Role;
+}
+
+@ObjectType()
+@Entity()
+export class ReplyTicketImage extends BaseEntity {
 	@Field()
 	@ManyToOne(() => Ticket)
 	ticket!: Ticket;

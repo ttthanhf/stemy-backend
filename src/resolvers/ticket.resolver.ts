@@ -175,7 +175,7 @@ export class TicketResolver {
 
 		//create image
 		for await (const image of images) {
-			await TicketImageService.createTicketImage(ticket, image, user.role);
+			await TicketImageService.createReplyTicketImage(ticket, image, user.role);
 		}
 
 		return ticket;
@@ -269,9 +269,12 @@ export class TicketResolver {
 
 	@UseMiddleware([AuthMiddleware.LoginRequire])
 	@Query(() => [Ticket])
-	async myTickets(@Ctx() ctx: Context) {
+	async myTickets(
+		@Ctx() ctx: Context,
+		@Arg('status', { nullable: true }) status?: TicketStatus
+	) {
 		const userId = ctx.res.model.data.user.id;
-		const tickets = await TicketService.getTicketsByUserId(userId);
+		const tickets = await TicketService.getTicketsByUserId(userId, status);
 		return tickets;
 	}
 }

@@ -2,6 +2,7 @@ import { RoleRequire } from 'decorators/auth.decorator';
 import { GraphQLError, GraphQLResolveInfo } from 'graphql';
 import { CountOrderResponse } from 'models/responses/order.model';
 import { PageInfo } from 'models/responses/pagination/base.response';
+import { OrdersWithPaginationResponse } from 'models/responses/pagination/order.response';
 import {
 	Arg,
 	Args,
@@ -156,7 +157,7 @@ export class OrderResolver {
 	}
 
 	@RoleRequire([Role.MANAGER])
-	@Query(() => [Order])
+	@Query(() => OrdersWithPaginationResponse)
 	async orders(
 		@Info() info: GraphQLResolveInfo,
 		@Args() pageInfoArgs: PageInfoArgs,
@@ -178,6 +179,24 @@ export class OrderResolver {
 			items: orders,
 			pageInfo: pageInfo
 		};
+	}
+
+	@UseMiddleware(AuthMiddleware.LoginRequire)
+	@Query(() => Order)
+	async order(@Ctx() ctx: Context, @Arg('id') id: number) {
+		const userId = ctx.res.model.data.user.id;
+		const user = await UserService.getUserById(userId);
+		if (!user) {
+			throw new GraphQLError('User not found ???');
+		}
+
+		if (user.role == Role.MANAGER) {
+			const order = await OrderService.getOrderById(id);
+			return order;
+		}
+
+		const order = await OrderService.getOrderByIdAndUserId(id, user.id);
+		return order;
 	}
 
 	@UseMiddleware(AuthMiddleware.LoginRequire)

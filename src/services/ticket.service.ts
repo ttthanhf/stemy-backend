@@ -1,5 +1,6 @@
-import { Ticket, TicketImage } from '~entities/ticket.entity';
+import { ReplyTicketImage, Ticket, TicketImage } from '~entities/ticket.entity';
 import {
+	replyTicketImageRepository,
 	ticketCategoryRepository,
 	ticketImageRepository,
 	ticketRepository
@@ -30,27 +31,46 @@ export class TicketService {
 					'orderItem',
 					'orderItem.product',
 					'category',
-					'images'
+					'images',
+					'replyImages'
 				]
 			}
 		);
 	}
 
-	static async getTicketsByUserId(userId: number) {
-		return ticketRepository.find({
-			$or: [
-				{
-					sender: {
-						id: userId
-					}
-				},
-				{
-					replier: {
-						id: userId
-					}
+	static async getTicketsByUserId(userId: number, status?: TicketStatus) {
+		const statusQuery = status
+			? {
+					status
 				}
-			]
-		});
+			: {};
+		return ticketRepository.find(
+			{
+				$or: [
+					{
+						sender: {
+							id: userId
+						}
+					},
+					{
+						replier: {
+							id: userId
+						}
+					}
+				],
+				...statusQuery
+			},
+			{
+				populate: [
+					'category',
+					'orderItem',
+					'orderItem.product',
+					'orderItem.product.images',
+					'images',
+					'replyImages'
+				]
+			}
+		);
 	}
 
 	static async getTicketByIdAndUserId(ticketId: number, userId: number) {
@@ -76,8 +96,10 @@ export class TicketService {
 					'replier',
 					'orderItem',
 					'orderItem.product',
+					'orderItem.product.images',
 					'category',
-					'images'
+					'images',
+					'replyImages'
 				]
 			}
 		);
@@ -176,5 +198,29 @@ export class TicketImageService {
 		ticketImage.owner = owner;
 
 		await ticketImageRepository.createAndSave(ticketImage);
+	}
+
+	static async createReplyTicketImage(
+		ticket: Ticket,
+		image: FileUpload,
+		owner: Role
+	) {
+		const imageName =
+			'stemy-reply-ticket-' +
+			ticket.id +
+			'-T-' +
+			String(Date.now()) +
+			'-' +
+			NumberUtil.getRandomNumberByLength(3) +
+			'.png';
+
+		await UploadService.uploadFile(imageName, image.blobParts[0]);
+
+		const replyTicketImage = new ReplyTicketImage();
+		replyTicketImage.ticket = ticket;
+		replyTicketImage.url = env.S3_HOST + imageName;
+		replyTicketImage.owner = owner;
+
+		await replyTicketImageRepository.createAndSave(replyTicketImage);
 	}
 }

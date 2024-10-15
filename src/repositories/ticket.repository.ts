@@ -1,4 +1,9 @@
-import { Ticket, TicketCategory, TicketImage } from '~entities/ticket.entity';
+import {
+	ReplyTicketImage,
+	Ticket,
+	TicketCategory,
+	TicketImage
+} from '~entities/ticket.entity';
 import { BaseRepository } from './base.repository';
 
 class TicketRepository extends BaseRepository<Ticket> {
@@ -21,3 +26,10 @@ class TicketImageRepository extends BaseRepository<TicketImage> {
 	}
 }
 export const ticketImageRepository = new TicketImageRepository();
+
+class ReplyTicketImageRepository extends BaseRepository<TicketImage> {
+	constructor() {
+		super(ReplyTicketImage);
+	}
+}
+export const replyTicketImageRepository = new ReplyTicketImageRepository();
