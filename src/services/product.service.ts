@@ -121,10 +121,15 @@ export class ProductService {
 	}
 
 	static async updateProduct(id: number, input: ProductInput) {
-		const product = await productRepository.findOne({
-			id: id,
-			isDelete: false
-		});
+		const product = await productRepository.findOne(
+			{
+				id: id,
+				isDelete: false
+			},
+			{
+				populate: ['images', 'lab']
+			}
+		);
 
 		if (!product) {
 			throw new GraphQLError('Product not found');
@@ -274,18 +279,48 @@ export class ProductLabService {
 		lab: FileUpload,
 		price: number
 	) {
-		// Remove old lab if exists
+		const labName =
+			'stemy-product-' +
+			product.id +
+			'-T-' +
+			String(Date.now()) +
+			'-' +
+			NumberUtil.getRandomNumberByLength(3) +
+			'.pdf';
+
+		const buffer = Buffer.concat(lab.blobParts);
+		await UploadService.uploadFile(labName, buffer);
+
+		let productLab = await productLabRepository.findOne({
+			product: product.id
+		});
+
+		if (!productLab) {
+			productLab = new ProductLab();
+			productLab.product = product;
+		}
+
+		productLab.url = env.S3_HOST + labName;
+		productLab.price = price;
+
+		await productLabRepository.save(productLab);
+
+		return productLab;
+	}
+
+	static async updateProductLabPrice(product: Product, price: number) {
 		const productLab = await productLabRepository.findOne({
 			product: product.id
 		});
 		if (productLab) {
-			// soft delete
-			productLab.isDelete = true;
-			productLab.deletedAt = new Date();
+			productLab.price = price;
 			await productLabRepository.save(productLab);
 		}
+	}
 
-		// Create new lab
-		await this.createProductLab(product, lab, price);
+	static async getProductLabByProductId(productId: number) {
+		return productLabRepository.findOne({
+			product: productId
+		});
 	}
 }

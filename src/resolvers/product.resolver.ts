@@ -111,7 +111,6 @@ export class ProductResolver {
 
 		if (images) {
 			images.forEach((image) => {
-				console.log(image.type);
 				if (
 					!image.type.startsWith('image/') &&
 					image.type !== 'application/octet-stream'
@@ -125,10 +124,7 @@ export class ProductResolver {
 		}
 
 		if (lab) {
-			if (
-				lab.type != 'application/pdf' &&
-				lab.type != 'application/octet-stream'
-			) {
+			if (lab.type != 'application/pdf') {
 				throw new GraphQLError(lab.name + ' not a PDF');
 			}
 			if (lab.blobParts[0].byteLength > 1000000) {
@@ -144,6 +140,8 @@ export class ProductResolver {
 
 		if (lab && input.labPrice) {
 			await ProductLabService.updateProductLab(product, lab, input.labPrice);
+		} else if (!lab && input.labPrice) {
+			await ProductLabService.updateProductLabPrice(product, input.labPrice);
 		}
 
 		return product;

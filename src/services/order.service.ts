@@ -16,6 +16,8 @@ import { NumberUtil } from '~utils/number.util';
 import { ObjectUtil } from '~utils/object.util';
 import { QueryString } from '~utils/query-string.util';
 import { UserLabService } from './user.service';
+import { PageInfoArgs, SortOrderArgs } from '~types/args/pagination.arg';
+import { PaginationUtil } from '~utils/pagination.util';
 
 export class OrderService {
 	static async createOrder(
@@ -196,7 +198,7 @@ export class OrderService {
 
 		let id: number;
 		try {
-			id = parseInt(atob(atob(atob(atob('search')))), 10);
+			id = parseInt(atob(atob(atob(atob(search)))), 10);
 		} catch {
 			id = NaN;
 		}
@@ -229,6 +231,25 @@ export class OrderService {
 					'orderItems.userLab',
 					'orderItems.tickets'
 				]
+			}
+		);
+	}
+
+	static async getOrdersPagination(
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		fields: any,
+		pageInfoArgs: PageInfoArgs,
+		sortOrderArgs: SortOrderArgs
+	) {
+		const pageResult = PaginationUtil.avoidTrashInput(pageInfoArgs);
+		return orderRepository.findAndCount(
+			{},
+			{
+				fields: fields,
+				...pageResult,
+				orderBy: {
+					[sortOrderArgs.sort]: sortOrderArgs.order
+				}
 			}
 		);
 	}
