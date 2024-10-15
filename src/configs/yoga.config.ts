@@ -15,6 +15,7 @@ import {
 	ProductCategoryResolver,
 	ProductResolver
 } from '~resolvers/product.resolver';
+import { PushTokenResolver } from '~resolvers/push-token.resolver';
 import { TicketResolver } from '~resolvers/ticket.resolver';
 import { UserResolver } from '~resolvers/user.resolver';
 import { FileScalar, FileScalarType } from '~types/scalars/file.scalar';
@@ -36,7 +37,8 @@ export const yogaConfig: YogaServerOptions<any, any> = {
 			OrderResolver,
 			ProductCategoryResolver,
 			TicketResolver,
-			FeedbackResolver
+			FeedbackResolver,
+			PushTokenResolver
 		],
 		globalMiddlewares: [GlobalMiddleware.ErrorInterceptor],
 		scalarsMap: [{ type: FileScalarType, scalar: FileScalar }]
