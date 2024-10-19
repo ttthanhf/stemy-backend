@@ -10,7 +10,7 @@ import { GlobalMiddleware } from '~middlewares/global.middleware';
 import { AuthResolver } from '~resolvers/auth.resolver';
 import { CartResolver } from '~resolvers/cart.resolver';
 import { FeedbackResolver } from '~resolvers/feedback.resolver';
-import { OrderResolver } from '~resolvers/order.resolver';
+import { OrderItemResolver, OrderResolver } from '~resolvers/order.resolver';
 import {
 	ProductCategoryResolver,
 	ProductResolver
@@ -35,6 +35,7 @@ export const yogaConfig: YogaServerOptions<any, any> = {
 			ProductResolver,
 			CartResolver,
 			OrderResolver,
+			OrderItemResolver,
 			ProductCategoryResolver,
 			TicketResolver,
 			FeedbackResolver,

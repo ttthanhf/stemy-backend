@@ -339,7 +339,7 @@ export class OrderItemService {
 					}
 				}
 			},
-			{ populate: ['product', 'product.feedbacks'] }
+			{ populate: ['product', 'product.feedbacks', 'tickets'] }
 		);
 	}
 }

@@ -105,11 +105,7 @@ export class UserResolver {
 
 	@UseMiddleware(AuthMiddleware.LoginRequire)
 	@Query(() => [UserLab])
-	async userLabs(@Ctx() ctx: Context, @Info() info: GraphQLResolveInfo) {
-		const fields = ResolverUtil.getNodes(
-			info.fieldNodes[0].selectionSet?.selections
-		);
-
+	async userLabs(@Ctx() ctx: Context) {
 		const userId = ctx.res.model.data.user.id;
 		const user = await UserService.getUserById(userId);
 		if (!user) {
@@ -119,7 +115,7 @@ export class UserResolver {
 		const orders = await OrderService.getOrdersByUserId(userId);
 		await OrderService.handleOrderStatusBySystem(orders);
 
-		const userLabs = await UserLabService.getUserLabsByUserId(user.id, fields);
+		const userLabs = await UserLabService.getUserLabsByUserId(user.id);
 		return userLabs;
 	}
 }

@@ -13,7 +13,7 @@ import {
 } from 'type-graphql';
 import { Role } from '~constants/role.constant';
 import { TicketStatus } from '~constants/ticket.constant';
-import { Ticket } from '~entities/ticket.entity';
+import { Ticket, TicketCategory } from '~entities/ticket.entity';
 import { User } from '~entities/user.entity';
 import { AuthMiddleware } from '~middlewares/auth.middleware';
 import { OrderItemService } from '~services/order.service';
@@ -30,7 +30,7 @@ import { ResolverUtil } from '~utils/resolver.util';
 
 export class TicketResolver {
 	@RoleRequire([Role.CUSTOMER])
-	@Mutation(() => Boolean)
+	@Mutation(() => Ticket)
 	async createTicket(
 		@Ctx() ctx: Context,
 		@Arg('comment') comment: string,
@@ -126,7 +126,7 @@ export class TicketResolver {
 		return ticket;
 	}
 
-	@RoleRequire([Role.CUSTOMER])
+	@RoleRequire([Role.STAFF])
 	@Mutation(() => Ticket)
 	async replyTicket(
 		@Ctx() ctx: Context,
@@ -276,5 +276,11 @@ export class TicketResolver {
 		const userId = ctx.res.model.data.user.id;
 		const tickets = await TicketService.getTicketsByUserId(userId, status);
 		return tickets;
+	}
+
+	@Query(() => [TicketCategory])
+	async ticketCategorys() {
+		const ticketCategorys = await TicketCategoryService.getTicketCategories();
+		return ticketCategorys;
 	}
 }

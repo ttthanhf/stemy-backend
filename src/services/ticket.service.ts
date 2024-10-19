@@ -168,6 +168,10 @@ export class TicketService {
 }
 
 export class TicketCategoryService {
+	static async getTicketCategories() {
+		return ticketCategoryRepository.find({});
+	}
+
 	static async getTicketCategoryById(id: number) {
 		return ticketCategoryRepository.findOne({
 			id
