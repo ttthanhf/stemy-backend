@@ -123,7 +123,7 @@ export class UserLabService {
 		return count > 0;
 	}
 
-	static async getUserLabsByUserId(userId: number, fields: any) {
+	static async getUserLabsByUserId(userId: number) {
 		return userLabRepository.find(
 			{
 				user: {
@@ -131,8 +131,13 @@ export class UserLabService {
 				}
 			},
 			{
-				fields,
-				populate: ['orderItem', 'orderItem.order', 'orderItem.product']
+				populate: [
+					'orderItem',
+					'orderItem.order',
+					'orderItem.tickets',
+					'orderItem.product',
+					'orderItem.product.images'
+				]
 			}
 		);
 	}

@@ -17,12 +17,12 @@ import { OrderStatus } from '~constants/order.constant';
 import { PaymentProvider } from '~constants/payment.constant';
 import { Role } from '~constants/role.constant';
 import { Cart } from '~entities/cart.entity';
-import { Order } from '~entities/order.entity';
+import { Order, OrderItem } from '~entities/order.entity';
 import { Product } from '~entities/product.entity';
 import { UserLab } from '~entities/user.entity';
 import { AuthMiddleware } from '~middlewares/auth.middleware';
 import { CartService } from '~services/cart.service';
-import { OrderService } from '~services/order.service';
+import { OrderItemService, OrderService } from '~services/order.service';
 import { ProductService } from '~services/product.service';
 import { UserLabService, UserService } from '~services/user.service';
 import { PageInfoArgs, SortOrderArgs } from '~types/args/pagination.arg';
@@ -295,5 +295,23 @@ export class OrderResolver {
 		}
 
 		return countOrder;
+	}
+}
+
+export class OrderItemResolver {
+	@UseMiddleware(AuthMiddleware.LoginRequire)
+	@Query(() => OrderItem)
+	async orderItem(@Ctx() ctx: Context, @Arg('id') id: number) {
+		const userId = ctx.res.model.data.user.id;
+
+		const orderItem = await OrderItemService.getOrderItemByIdAndUserId(
+			id,
+			userId
+		);
+		if (!orderItem) {
+			throw new GraphQLError('Item not found');
+		}
+
+		return orderItem;
 	}
 }
