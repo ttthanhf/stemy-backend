@@ -178,7 +178,8 @@ export class OrderService {
 					'orderItems.userLab',
 					'orderItems.product',
 					'orderItems.product.images',
-					'orderItems.product.lab'
+					'orderItems.product.lab',
+					'orderItems.product.feedbacks'
 				]
 			}
 		);

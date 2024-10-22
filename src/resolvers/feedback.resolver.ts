@@ -12,6 +12,7 @@ import { ProductService } from '~services/product.service';
 import { UserService } from '~services/user.service';
 import { Context } from '~types/context.type';
 import { CreateFeedbackInput } from '~types/inputs/feedback.input';
+import { ArrayUtil } from '~utils/array.util';
 
 export class FeedbackResolver {
 	@UseMiddleware([AuthMiddleware.LoginRequire])
@@ -50,6 +51,12 @@ export class FeedbackResolver {
 		}
 		if (order.status != OrderStatus.RECEIVED) {
 			throw new GraphQLError('Only rating when order status is received');
+		}
+
+		const orderItemIdsInput = input.map((item) => item.orderItemId);
+		const orderItemIds = order.orderItems.map((item) => item.id);
+		if (!ArrayUtil.compareArraysUnordered(orderItemIdsInput, orderItemIds)) {
+			throw new GraphQLError('Need the same and full ids order item in order');
 		}
 
 		for (const item of input) {

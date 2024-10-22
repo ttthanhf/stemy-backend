@@ -1,4 +1,5 @@
 import { Expo } from 'expo-server-sdk';
+import logger from './logger.util';
 
 class PushNotificationUtil {
 	private expo: Expo;
@@ -27,7 +28,7 @@ class PushNotificationUtil {
 			try {
 				await this.expo.sendPushNotificationsAsync(chunk);
 			} catch (error) {
-				console.error('Error sending push notification:', error);
+				logger.error(error);
 			}
 		}
 	}
