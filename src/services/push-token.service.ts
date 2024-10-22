@@ -26,7 +26,8 @@ export class PushTokenService {
 			pushToken.platform = platform;
 		}
 
-		return pushTokenRepository.save(pushToken);
+		await pushTokenRepository.save(pushToken);
+		return pushToken;
 	}
 
 	static async deactivatePushToken(user: User, deviceId: string) {
@@ -37,7 +38,7 @@ export class PushTokenService {
 		}
 
 		pushToken.isActive = false;
-		return pushTokenRepository.save(pushToken);
+		await pushTokenRepository.save(pushToken);
 	}
 
 	static async getActivePushTokensByUserId(userId: number) {
@@ -61,13 +62,13 @@ export class PushTokenService {
 		}
 	}
 
-  static async getPushTokens(user: User) {
-    return pushTokenRepository.find({
-      user
-    });
-  }
+	static async getPushTokens(user: User) {
+		return pushTokenRepository.find({
+			user
+		});
+	}
 
-  static async getPushToken(user: User, deviceId: string) {
-    return pushTokenRepository.findOne({ deviceId, user });
-  }
-  }
+	static async getPushToken(user: User, deviceId: string) {
+		return pushTokenRepository.findOne({ deviceId, user });
+	}
+}
