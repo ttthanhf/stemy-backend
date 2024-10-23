@@ -39,7 +39,7 @@ export class CartService {
 				},
 				hasLab: hasLab
 			},
-			{ populate: ['product', 'product.images'] }
+			{ populate: ['product', 'product.images', 'product.lab'] }
 		);
 	}
 

@@ -77,7 +77,7 @@ export class TicketResolver {
 			userId,
 			orderItemId
 		);
-		if (oldTickets.length > 3) {
+		if (oldTickets.length >= 3) {
 			throw new GraphQLError('Maximum of this ticket for order item is 3');
 		}
 
