@@ -327,6 +327,17 @@ export class OrderService {
 			await OrderService.updateOrders(updatedOrderList);
 		}
 	}
+
+	static async getAllOrdersFilterByStatus(status: OrderStatus) {
+		return orderRepository.find(
+			{
+				status
+			},
+			{
+				populate: ['orderItems']
+			}
+		);
+	}
 }
 
 export class OrderItemService {

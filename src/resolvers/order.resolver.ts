@@ -296,6 +296,13 @@ export class OrderResolver {
 
 		return countOrder;
 	}
+
+	@RoleRequire([Role.STAFF])
+	@Query(() => [Order])
+	async listOrders(@Arg('status') status: OrderStatus) {
+		const orders = await OrderService.getAllOrdersFilterByStatus(status);
+		return orders;
+	}
 }
 
 export class OrderItemResolver {
