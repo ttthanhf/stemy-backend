@@ -56,7 +56,7 @@ export class Product extends BaseEntity {
 	sold!: number;
 
 	@Field(() => Float)
-	@Property({ default: 0 })
+	@Property({ default: 0, type: 'float' })
 	rating!: number;
 }
 
