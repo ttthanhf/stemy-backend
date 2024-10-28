@@ -85,7 +85,7 @@ export class FeedbackResolver {
 				(product.rating * feedbacksLength + item.rating) /
 				(feedbacksLength + 1);
 
-			product.rating = parseFloat(newRating.toFixed(2));
+			product.rating = parseFloat(newRating.toFixed(1));
 
 			// Create image
 			if (item.images) {
