@@ -13,12 +13,14 @@ import { Order, OrderItem } from '~entities/order.entity';
 import { Feedback, FeedbackImage } from '~entities/feedback.entity';
 import { Cart } from '~entities/cart.entity';
 import { Ticket, TicketCategory } from '~entities/ticket.entity';
+import { PushToken } from '~entities/push-token.entity';
 
 const ticketEntities = [Ticket, TicketCategory];
 const orderEntities = [Order, OrderItem];
 const productEntities = [Product, ProductCategory, ProductLab, ProductImage];
 const userEntities = [User, UserLab];
 const feedbackEntities = [Feedback, FeedbackImage];
+const expoPushTokenEntities = [PushToken];
 const otherEntities = [Cart];
 const entities = [
 	...userEntities,
@@ -26,7 +28,8 @@ const entities = [
 	...orderEntities,
 	...otherEntities,
 	...ticketEntities,
-	...feedbackEntities
+	...feedbackEntities,
+  ...expoPushTokenEntities
 ];
 
 export default defineConfig({

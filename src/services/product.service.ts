@@ -102,7 +102,8 @@ export class ProductService {
 	}
 
 	static async updateProducts(products: Product[]) {
-		return await productRepository.save(products);
+		await productRepository.save(products);
+    return products;
 	}
 
 	static async softDeleteProduct(id: number) {
@@ -187,7 +188,8 @@ export class ProductCategoryService {
 		productCategory.title = input.title;
 		productCategory.type = input.type;
 
-		return productCategoryRepository.save(productCategory);
+		await productCategoryRepository.save(productCategory);
+    return productCategory;
 	}
 
 	static async deleteProductCategory(id: number) {
