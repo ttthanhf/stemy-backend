@@ -22,7 +22,7 @@ export class Product extends BaseEntity {
 	name!: string;
 
 	@Field()
-	@Property()
+	@Property({ length: 2555 })
 	description!: string;
 
 	@Field(() => Int)
