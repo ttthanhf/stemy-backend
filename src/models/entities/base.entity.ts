@@ -19,9 +19,11 @@ export abstract class BaseEntity {
 	@Property({ onUpdate: () => new Date(), type: 'datetime', nullable: true })
 	readonly updatedAt!: Date;
 
+	@Field({ nullable: true })
 	@Property({ type: 'datetime', nullable: true })
 	deletedAt!: Date;
 
+	@Field()
 	@Property({ default: false })
 	isDelete: boolean = false;
 }
