@@ -24,6 +24,7 @@ import { AuthMiddleware } from '~middlewares/auth.middleware';
 import { CartService } from '~services/cart.service';
 import { OrderItemService, OrderService } from '~services/order.service';
 import { ProductService } from '~services/product.service';
+import { PushTokenService } from '~services/push-token.service';
 import { UserLabService, UserService } from '~services/user.service';
 import { PageInfoArgs, SortOrderArgs } from '~types/args/pagination.arg';
 import { Context } from '~types/context.type';
@@ -96,6 +97,9 @@ export class OrderResolver {
 			products.push(product);
 		}
 		await ProductService.updateProducts(products);
+
+		// send push noti to user for order confirmation
+		await PushTokenService.sendOrderSuccessfulPushNotification(order);
 
 		//create user lab
 		for await (const orderItem of order.orderItems) {
@@ -256,6 +260,9 @@ export class OrderResolver {
 				if (!userLab.isActive) {
 					userLab.isActive = true;
 					await UserLabService.updateUserLab(userLab);
+
+					// send push noti to user
+					await PushTokenService.sendActiveLabPushNotification(order.user);
 				}
 			}
 		}

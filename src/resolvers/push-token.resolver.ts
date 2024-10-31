@@ -76,4 +76,20 @@ export class PushTokenResolver {
 		}
 		return await PushTokenService.getPushToken(user, deviceId);
 	}
+
+	@UseMiddleware(AuthMiddleware.LoginRequire)
+	@Mutation(() => Boolean)
+	async testPushNotification(@Ctx() ctx: Context) {
+		const userId = ctx.res.model.data.user.id;
+		const user = await UserService.getUserById(userId);
+		if (!user) {
+			throw new GraphQLError('User not found');
+		}
+		return await PushTokenService.pushNotificationToUser(
+			user,
+			'Test',
+			'Test',
+			{}
+		);
+	}
 }

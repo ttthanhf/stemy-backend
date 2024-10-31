@@ -27,6 +27,7 @@ import { PageInfoArgs, SortOrderArgs } from '~types/args/pagination.arg';
 import { Context } from '~types/context.type';
 import { FileScalar, FileUpload } from '~types/scalars/file.scalar';
 import { ResolverUtil } from '~utils/resolver.util';
+import { PushTokenService } from '~services/push-token.service';
 
 export class TicketResolver {
 	@RoleRequire([Role.CUSTOMER])
@@ -123,6 +124,9 @@ export class TicketResolver {
 			await TicketImageService.createTicketImage(ticket, image, user.role);
 		}
 
+		// send push noti to replier
+		await PushTokenService.sendPushNotificationToReplier(ticket);
+
 		return ticket;
 	}
 
@@ -177,6 +181,9 @@ export class TicketResolver {
 		for await (const image of images) {
 			await TicketImageService.createReplyTicketImage(ticket, image, user.role);
 		}
+
+		// send push noti to sender
+		await PushTokenService.sendPushNotificationToSender(ticket);
 
 		return ticket;
 	}
