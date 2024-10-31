@@ -103,7 +103,7 @@ export class ProductService {
 
 	static async updateProducts(products: Product[]) {
 		await productRepository.save(products);
-    return products;
+		return products;
 	}
 
 	static async softDeleteProduct(id: number) {
@@ -189,7 +189,7 @@ export class ProductCategoryService {
 		productCategory.type = input.type;
 
 		await productCategoryRepository.save(productCategory);
-    return productCategory;
+		return productCategory;
 	}
 
 	static async deleteProductCategory(id: number) {
@@ -229,7 +229,7 @@ export class ProductImageService {
 			NumberUtil.getRandomNumberByLength(3) +
 			'.png';
 
-		await UploadService.uploadFile(imageName, image.blobParts[0]);
+		await UploadService.uploadFile(imageName, Buffer.concat(image.blobParts));
 
 		const productImage = new ProductImage();
 		productImage.product = product;

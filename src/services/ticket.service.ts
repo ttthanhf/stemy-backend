@@ -194,7 +194,7 @@ export class TicketImageService {
 			NumberUtil.getRandomNumberByLength(3) +
 			'.png';
 
-		await UploadService.uploadFile(imageName, image.blobParts[0]);
+		await UploadService.uploadFile(imageName, Buffer.concat(image.blobParts));
 
 		const ticketImage = new TicketImage();
 		ticketImage.ticket = ticket;

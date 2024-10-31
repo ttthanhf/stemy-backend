@@ -67,7 +67,7 @@ export class ProductResolver {
 			if (!image.type.startsWith('image/')) {
 				throw new GraphQLError(image.name + ' not a image');
 			}
-			if (image.blobParts[0].byteLength > 1000000) {
+			if (Buffer.concat(image.blobParts).byteLength > 1000000) {
 				throw new GraphQLError(image.name + ' must not exceed 1MB');
 			}
 		});
@@ -75,7 +75,7 @@ export class ProductResolver {
 		if (lab.type != 'application/pdf') {
 			throw new GraphQLError(lab.name + ' not a PDF');
 		}
-		if (lab.blobParts[0].byteLength > 1000000) {
+		if (Buffer.concat(lab.blobParts).byteLength > 1000000) {
 			throw new GraphQLError(lab.name + ' must not exceed 1MB');
 		}
 
