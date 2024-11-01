@@ -3,21 +3,25 @@ import { HttpRequest, HttpResponse } from 'uWebSockets.js';
 import { UserLabService } from '~services/user.service';
 import { JWTUtil } from '~utils/jwt.util';
 import { QueryString } from '~utils/query-string.util';
+import { StringUtil } from '~utils/string.util';
 
 export class DownloadController {
 	static async downloadLab(res: HttpResponse, req: HttpRequest) {
 		const orderItemId = req.getParameter(0);
 		const access_token = req.getHeader('authorization');
+		const bypassToken = req.getHeader('bypasstoken');
 
 		const token = JWTUtil.verify(access_token);
-		if (!token) {
-			res.model.errors = {
-				message: 'Token not valid'
-			};
-			return res.model.send();
+		if (!bypassToken) {
+			if (!token) {
+				res.model.errors = {
+					message: 'Token not valid'
+				};
+				return res.model.send();
+			}
 		}
 
-		const userId = token.payload.id;
+		const userId = bypassToken || token.payload.id;
 
 		const lab = await UserLabService.getUserLabByUserIdAndOrderItemId(
 			userId,
@@ -47,7 +51,7 @@ export class DownloadController {
 		pages.forEach((page, index) => {
 			// const { width, height } = page.getSize();
 			page.drawText(
-				`${lab.user.fullName} - ${lab.orderItem.order.id} - Copy right by Stemy`,
+				`${StringUtil.removeVietnameseTones(lab.user.fullName)} - ${lab.orderItem.order.id} - Copy right by Stemy`,
 				{
 					x: 50,
 					y: 30,
