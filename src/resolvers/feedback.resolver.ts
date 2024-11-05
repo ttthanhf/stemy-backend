@@ -79,7 +79,13 @@ export class FeedbackResolver {
 
 			const feedback = await FeedbackService.createFeedback(newFeedback);
 
-			const product = orderItem.product;
+			const product = await ProductService.getProductById(
+				orderItem.product.id,
+				['feedbacks']
+			);
+			if (!product) {
+				throw new GraphQLError('Product not found');
+			}
 			const feedbacksLength = product.feedbacks.length;
 			const newRating =
 				(product.rating * feedbacksLength + item.rating) /
