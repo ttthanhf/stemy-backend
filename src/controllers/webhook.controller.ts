@@ -3,6 +3,7 @@ import { OrderStatus } from '~constants/order.constant';
 import { Product } from '~entities/product.entity';
 import { OrderService } from '~services/order.service';
 import { ProductService } from '~services/product.service';
+import { PushTokenService } from '~services/push-token.service';
 
 export class WebHookController {
 	static async changeStatusToDelivering(res: HttpResponse, req: HttpRequest) {
@@ -18,6 +19,9 @@ export class WebHookController {
 
 		order.status = OrderStatus.DELIVERING;
 		await OrderService.updateOrder(order);
+
+    // send push noti when status changed
+    await PushTokenService.sendOrderStatusNotification(order)
 
 		res.model.data = 'Success';
 		res.model.send();
@@ -49,6 +53,9 @@ export class WebHookController {
 		}
 
 		await ProductService.updateProducts(products);
+
+    // send push noti for status changed
+    await PushTokenService.sendOrderStatusNotification(order)
 
 		res.model.data = 'Success';
 		res.model.send();
